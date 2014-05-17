@@ -1,0 +1,15 @@
+#:kivy 1.0
+
+<ColorView>:
+    Button:
+        background_color:root.bcolour
+        text:root.answer_text
+        font_size:root.font_size#'72dp'
+        color:0,0,0,1
+        on_press:root.dismiss()
+
+<MainView>:
+    mml:mml
+    orientation:'vertical'
+    Label:
+        id:mml
