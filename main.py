@@ -20,22 +20,26 @@ class MainView(BoxLayout):
     mml = ObjectProperty()
     raw_label_text = ""
     
-    
     def read_map_from_file(self,filename):
         tree = etree.parse(filename)
         self.rootnode = tree.getroot()
         self.raw_label_text = ""
-        self.raw_label_text = self.parse_node_to_text(self.rootnode.find("node"),0,"")
+        self.firstnode = self.rootnode.find("node")
+        self.firstnode.set("FOLDED","False")
+        self.raw_label_text = self.parse_node_to_text(self.firstnode,0,"")
         return self.raw_label_text
         
     def parse_node_to_text(self,node,level,outstr):    
         if node.tag=="node":
-            #print " " * level, level, node.get("TEXT"), node.tag
-            outstr += "    " * level + "[ref=" + node.get("ID") + "]" +  node.get("TEXT") +"[/ref]"+ chr(10)
-            for nodechild in node:
-                if nodechild.tag=="node":
-                    #print "gugu1, ",nodechild.tag
-                    outstr = self.parse_node_to_text(nodechild,level+1,outstr)
+        
+            print " " * level, level, node.get("TEXT"), node.tag
+            outstr += "    " * level + "[ref=" + node.get("ID") + "]" +  node.get("TEXT") +"[/ref]"+ chr(10)            
+            if node.get("FOLDED",default="False")=="False":
+                for nodechild in node:
+                    if nodechild.tag=="node":
+                        #print "gugu1, ",nodechild.tag
+                        #if nodechild.get("FOLDED",default="True")=="False":
+                            outstr = self.parse_node_to_text(nodechild,level+1,outstr)
         else:
             print "what?", node.tag
                 
@@ -43,6 +47,17 @@ class MainView(BoxLayout):
     
     def nodepress(self,instance,value):
         print "press , ", value
+        node = self.rootnode.xpath("//node[@ID='" + value + "']")[0]
+        print node
+        if (node.get("FOLDED")=="False"):
+            node.set("FOLDED","True")
+        else:
+            node.set("FOLDED","False")
+        
+        self.raw_label_text = self.parse_node_to_text(self.rootnode.find("node"),0,"")
+        self.mml.text=self.raw_label_text   
+        print self.raw_label_text
+    
     
     def filllabel(self):
         print "bla"
