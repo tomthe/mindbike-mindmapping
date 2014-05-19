@@ -10,8 +10,13 @@
 
 <MainView>:
     mml:mml
-    orientation:'vertical'
-    Label:
-        id:mml
-        #markup:True
-        #on_ref_press:root.nodepress()
+    #orientation:'vertical'
+    ScrollView:
+        #size_hint:1,None
+        Label:
+            id:mml
+            text_size: (root.width, None)
+            size_hint_y:None
+            size: self.texture_size                
+            #markup:True
+            #on_ref_press:root.nodepress()
