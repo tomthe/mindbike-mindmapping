@@ -3,6 +3,7 @@ import kivy
 from kivy.uix.modalview import ModalView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
+from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ListProperty, StringProperty,ObjectProperty
 from kivy.app import App
@@ -12,7 +13,7 @@ from lxml import etree
 
 kivy.require('1.0.7')
 
-class Node(Widget):
+class Node(Label):
     ntext = StringProperty()
     folded = False
     bbox=[100,15]
@@ -24,18 +25,18 @@ class Node(Widget):
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             if touch.is_double_tap:
-                print "double!!! ", self.ntext, self.pos,self.size
+                print "double!!! ", self.text, self.pos,self.size
             else:
                 
                 if self.folded==False:
-                    print "single-fold! ", self.ntext, self.pos,self.size
+                    print "single-fold! ", self.text, self.pos,self.size
                     self.fold()
                 else:
-                    print "single-de-fold!! unfold! ", self.ntext, self.pos,self.size
+                    print "single-de-fold!! unfold! ", self.text, self.pos,self.size
                     self.unfold()
             
     def fold(self):
-        print "fold:  ", self.ntext
+        print "fold:  ", self.text
         self.folded = True
         for child in self.childnodes:
             child.fold()
@@ -45,20 +46,20 @@ class Node(Widget):
     def unfold(self):
         print "unfold, "
         self.folded = False
-        self.create_itself(self.xmlnode,self.rootwidget,self.pos)
+        self.create_itself(self.xmlnode,self.rootwidget,[self.x,self.y],unfold=True)
         
-    def create_itself(self,xmlnode,rootwidget,pos):
+    def create_itself(self,xmlnode,rootwidget,pos,unfold=False):
         if xmlnode.tag=="node":
             self.xmlnode = xmlnode
             self.rootwidget = rootwidget
-            self.ntext = xmlnode.get("TEXT")
-            self.nodetextlabel.texture_update()
-            self.size = self.nodetextlabel.texture_size
+            self.text = xmlnode.get("TEXT")
+            self.texture_update()
+            self.size = self.texture_size
             self.bbox = [self.size[0],self.size[1]]
-            self.pos=[self.size[0]+pos[0],pos[1]]
+            self.pos=[pos[0],pos[1]]
                     
-            childpos=[pos[0]+self.size[0],pos[1]]
-            if xmlnode.get("FOLDED",default="False")=="False":
+            childpos=[pos[0]+self.size[0]+30,pos[1]]
+            if xmlnode.get("FOLDED",default="False")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
                 self.folded=False
                 for nodechild in xmlnode:
@@ -72,6 +73,8 @@ class Node(Widget):
                         self.childnodes.append(newnode)
                         childpos[1]  += childboxy
                         self.bbox[1] += childboxy
+            else:
+                self.folded = True
             #self.size = [self.nwidth,self.nheight]
             
             return self.bbox[1]
