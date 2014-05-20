@@ -4,10 +4,17 @@
     nodetextlabel:nodetextlabel
     size_hint:None,None
     #size:100,15
+    canvas.before:
+        Color:
+            rgb: .5, .5, .5
+        Rectangle:
+            pos: self.pos
+            size: self.size
     Label:
         id:nodetextlabel
-        text:root.ntext
+        #text:"lab"
         pos:root.pos
+        size:root.size
 
 <MainView>:
     mml:mml
