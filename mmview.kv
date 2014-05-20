@@ -1,22 +1,31 @@
 #:kivy 1.0
 
-<ColorView>:
-    Button:
-        background_color:root.bcolour
-        text:root.answer_text
-        font_size:root.font_size#'72dp'
-        color:0,0,0,1
-        on_press:root.dismiss()
+<Node>:
+    nodetextlabel:nodetextlabel
+    size_hint:None,None
+    #size:100,15
+    Label:
+        id:nodetextlabel
+        text:root.ntext
+        pos:root.pos
 
 <MainView>:
     mml:mml
+    scrolla:scrolla
     #orientation:'vertical'
+    Label:
+        id:mml
+        text:"hallo"
     ScrollView:
-        #size_hint:1,None
-        Label:
-            id:mml
-            text_size: (root.width, None)
-            size_hint_y:None
-            size: self.texture_size                
-            #markup:True
-            #on_ref_press:root.nodepress()
+        RelativeLayout
+            id:scrolla
+            size:[900,2000]
+
+#        size_hint:1,None
+#        Label:
+#            id:mml
+#            text_size: (root.width, None)
+#            size_hint_y:None
+#            size: self.texture_size                
+#            #markup:True
+#            #on_ref_press:root.nodepress()
