@@ -34,6 +34,7 @@ class Node(Label):
                 else:
                     print "single-de-fold!! unfold! ", self.text, self.pos,self.size
                     self.unfold()
+                self.rootwidget.rebuild_map()
             
     def fold(self):
         print "fold:  ", self.text
@@ -85,19 +86,27 @@ class Node(Label):
             
             
 class MainView(FloatLayout):
+    rootnode=None
+    firstnode=None
     
     def read_map_from_file(self,filename):
         tree = etree.parse(filename)
         self.rootnode = tree.getroot()
-        self.raw_label_text = ""
         self.firstnode = self.rootnode.find("node")
         self.firstnode.set("FOLDED","False")
         self.build_map(self.firstnode,0,"")
         
+    def rebuild_map(self):
+        self.clear_widgets()
+        firstnodepos = [0,0] 
+        newnode=Node()
+        newnode.create_itself(self.firstnode,self,firstnodepos)
+        self.add_widget(newnode)
+        
     def build_map(self,node,level,outstr):    
         if node.tag=="node":
             newnode=Node()
-            firstnodepos = [self.pos[0], self.size[1]]
+            firstnodepos = [0,0]
             newnode.create_itself(node,self,firstnodepos)
             self.add_widget(newnode)
         else:
