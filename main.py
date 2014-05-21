@@ -2,6 +2,7 @@
 import kivy
 from kivy.uix.modalview import ModalView
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
@@ -38,12 +39,12 @@ class Node(Label):
                 self.rootwidget.rebuild_map()
             
     def fold(self):
-        print "fold:  ", self.text
+        #print "fold:  ", self.text
         self.folded = True
         self.xmlnode.set("FOLDED","True")
     
     def unfold(self):
-        print "unfold, "
+        #print "unfold, "
         self.folded = False
         self.xmlnode.set("FOLDED","False")
         self.create_itself(self.xmlnode,self.rootwidget,[self.x,self.y],unfold=True)
@@ -77,13 +78,13 @@ class Node(Label):
                         self.bbox[1] += childboxy
                 if has_open_children:
                     
-                    print "has open children, ", self.text
+                    #print "has open children, ", self.text
                     self.bbox[1] -=childboxy
                     
             else:
                 self.folded = True
-                print "folded: ",self.text,xmlnode.find("node")
-                print(etree.tostring(self.xmlnode, pretty_print=True))
+                #print "folded: ",self.text,xmlnode.find("node")
+                #print(etree.tostring(self.xmlnode, pretty_print=True))
                 if xmlnode.find("node") !=None:
                     print " has folded kids", self.text
                     self.bgcolor = [.4,0.4,0.4]
@@ -110,14 +111,14 @@ class MainView(FloatLayout):
         self.clear_widgets()
         firstnodepos = [0,0] 
         newnode=Node()
-        newnode.create_itself(self.firstnode,self,firstnodepos)
+        self.height = newnode.create_itself(self.firstnode,self,firstnodepos)
         self.add_widget(newnode)
         
     def build_map(self,node,level,outstr):    
         if node.tag=="node":
             newnode=Node()
             firstnodepos = [0,0]
-            newnode.create_itself(node,self,firstnodepos)
+            self.height = newnode.create_itself(node,self,firstnodepos)
             self.add_widget(newnode)
         else:
             print "what?", node.tag
@@ -127,9 +128,12 @@ class MainView(FloatLayout):
 class mmviewApp(App):
 
     def build(self):
-        mv = MainView()
+        mv = MainView(size_hint=(None,None))
         mv.read_map_from_file("test3.mm")
-        return mv
+        sv = ScrollView()
+        sv.add_widget(mv)
+        
+        return sv
 
 if __name__ == '__main__':
     mmviewApp().run()
