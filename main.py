@@ -21,6 +21,7 @@ class Node(Label):
     childnodes = ListProperty([])
     nodetextlabel = ObjectProperty()
     xmlnode = None
+    bgcolor = ListProperty([.25,0.25,0.25])
     
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -40,10 +41,6 @@ class Node(Label):
         print "fold:  ", self.text
         self.folded = True
         self.xmlnode.set("FOLDED","True")
-        for child in self.childnodes:
-            child.fold()
-            self.rootwidget.remove_widget(child)
-        #for child in self.childnodes:
     
     def unfold(self):
         print "unfold, "
@@ -62,12 +59,14 @@ class Node(Label):
             self.pos=[pos[0],pos[1]]
                     
             childpos=[pos[0]+self.size[0]+30,pos[1]]
+            has_open_children = False
             if xmlnode.get("FOLDED",default="False")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
                 self.folded=False
                 for nodechild in xmlnode:
                     if nodechild.tag=="node":
-                        print "childnode... ", childpos, self.pos, "--",self.size
+                        has_open_children=True
+                        #print "childnode... ", childpos, self.pos, "--",self.size
                         newnode = Node()
                         #childpos=(childpos[0],childpos[1])
                         childboxy = newnode.create_itself(nodechild,rootwidget,childpos)
@@ -76,8 +75,19 @@ class Node(Label):
                         self.childnodes.append(newnode)
                         childpos[1]  += childboxy
                         self.bbox[1] += childboxy
+                if has_open_children:
+                    
+                    print "has open children, ", self.text
+                    self.bbox[1] -=childboxy
+                    
             else:
                 self.folded = True
+                print "folded: ",self.text,xmlnode.find("node")
+                print(etree.tostring(self.xmlnode, pretty_print=True))
+                if xmlnode.find("node") !=None:
+                    print " has folded kids", self.text
+                    self.bgcolor = [.4,0.4,0.4]
+                    self.canvas.ask_update()
             #self.size = [self.nwidth,self.nheight]
             
             return self.bbox[1]
