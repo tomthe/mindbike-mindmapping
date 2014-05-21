@@ -38,6 +38,7 @@ class Node(Label):
     def fold(self):
         print "fold:  ", self.text
         self.folded = True
+        self.xmlnode.set("FOLDED","True")
         for child in self.childnodes:
             child.fold()
             self.rootwidget.remove_widget(child)
@@ -46,6 +47,7 @@ class Node(Label):
     def unfold(self):
         print "unfold, "
         self.folded = False
+        self.xmlnode.set("FOLDED","False")
         self.create_itself(self.xmlnode,self.rootwidget,[self.x,self.y],unfold=True)
         
     def create_itself(self,xmlnode,rootwidget,pos,unfold=False):
@@ -83,10 +85,6 @@ class Node(Label):
             
             
 class MainView(FloatLayout):
-    mml = ObjectProperty()
-    scrolla = ObjectProperty()
-    mmbox = ObjectProperty()
-    raw_label_text = ""    
     
     def read_map_from_file(self,filename):
         tree = etree.parse(filename)
@@ -94,45 +92,24 @@ class MainView(FloatLayout):
         self.raw_label_text = ""
         self.firstnode = self.rootnode.find("node")
         self.firstnode.set("FOLDED","False")
-        self.raw_label_text = self.parse_node_to_text(self.firstnode,0,"")
-        return self.raw_label_text
+        self.build_map(self.firstnode,0,"")
         
-    def parse_node_to_text(self,node,level,outstr):    
+    def build_map(self,node,level,outstr):    
         if node.tag=="node":
             newnode=Node()
             firstnodepos = [self.pos[0], self.size[1]]
-            newnode.create_itself(node,self.scrolla,firstnodepos)
-            
+            newnode.create_itself(node,self,firstnodepos)
             self.add_widget(newnode)
         else:
             print "what?", node.tag
         return outstr    
-    
-    def nodepress(self,instance,value):
-        print "press , ", value
-        node = self.rootnode.xpath("//node[@ID='" + value + "']")[0]
-        #print node
-        if (node.get("FOLDED")=="False"):
-            node.set("FOLDED","True")
-        else:
-            node.set("FOLDED","False")
-        
-        self.raw_label_text = self.parse_node_to_text(self.rootnode.find("node"),0,"")
-        self.mml.text=self.raw_label_text   
-        self.mml.texture_update()
-    
-    
-    def filllabel(self):
-        print "bla"
-        self.mml.text = self.read_map_from_file("test3.mm")
-        self.mml.bind(on_ref_press=self.nodepress)
-        self.mml.markup=True
 
+        
 class mmviewApp(App):
 
     def build(self):
         mv = MainView()
-        mv.filllabel()
+        mv.read_map_from_file("test3.mm")
         return mv
 
 if __name__ == '__main__':
