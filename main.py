@@ -5,8 +5,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
+from kivy.uix.textinput import TextInput
 from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import ListProperty, StringProperty,ObjectProperty
+from kivy.properties import ListProperty, StringProperty,ObjectProperty,AliasProperty
 from kivy.app import App
 #from readmm import stringize
 from lxml import etree
@@ -23,11 +24,23 @@ class Node(Label):
     nodetextlabel = ObjectProperty()
     xmlnode = None
     bgcolor = ListProperty([.25,0.25,0.25])
+    #posright = AliasProperty(get_posright, set_posright, bind=('pos', 'width'))
+    fathers_end_pos=[0,33]
+    fathers_width=20
+
+    def set_posright(self,value):
+        self.pos= [value[0] - self.width, value[1]]
+
+    def get_posright(self):
+        return [self.x + self.width,self.y]
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             if touch.is_double_tap:
                 print "double!!! ", self.text, self.pos,self.size
+                inputsize = self.size[0]+7, self.size[1]+7
+                textinput = TextInput(size=inputsize, pos=self.pos,text=self.text)
+                self.add_widget(textinput)
             else:
                 if self.folded==False:
                     print "single-fold! ", self.text, self.pos,self.size
@@ -48,16 +61,19 @@ class Node(Label):
         self.xmlnode.set("FOLDED","False")
         self.create_itself(self.xmlnode,self.rootwidget,[self.x,self.y],unfold=True)
 
-    def create_itself(self,xmlnode,rootwidget,pos,unfold=False):
+    def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50):
         if xmlnode.tag=="node":
+            print "fathersendpos.pos, self.ext: (nnerhalb...,", self.fathers_end_pos,self.text, "fathers..."
             self.xmlnode = xmlnode
             self.rootwidget = rootwidget
+            self.fathers_end_pos= fathers_end_pos
+            self.fathers_width = fathers_width
             self.text = xmlnode.get("TEXT")
             self.texture_update()
             self.size = self.texture_size
-            self.bby = self.height
+            self.bby = self.height+4
             self.pos = pos
-            childpos=[pos[0]+self.size[0]+30,pos[1]]
+            childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
             if xmlnode.get("FOLDED",default="False")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
@@ -67,7 +83,9 @@ class Node(Label):
                         has_open_children=True
 
                         newnode = Node()
-                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos)
+                        print "self.pos, self.ext: (nnerhalb...,",self.pos,self.text
+                        # newnode.canvas.
+                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width)
                         rootwidget.add_widget(newnode)
                         #self.childnodes.append(newnode)
                         childpos[1]  += childboxy
@@ -77,7 +95,7 @@ class Node(Label):
                     #print "has open children, ", self.text
                     self.bby -= self.height
                     #self.xmlnnode
-                    self.pos[1] += self.bby/2 - self.height/2
+                    self.pos[1] += self.bby/2 - self.height/2 -4
 
             else:
                 self.folded = True
@@ -114,7 +132,7 @@ class MainView(FloatLayout):
 
     def build_map(self,node,level,outstr):
         if node.tag=="node":
-            newnode=Node()
+            newnode=Node(fathers_end_pos=[20,0])
             firstnodepos = [0,0]
             self.height = newnode.create_itself(node,self,firstnodepos)
             self.add_widget(newnode)
