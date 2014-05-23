@@ -1,7 +1,7 @@
 #:kivy 1.0
 
 <Node>:
-    nodetextlabel:nodetextlabel
+    #nodetextlabel:nodetextlabel
     size_hint:None,None
     canvas.before:
         Color:
@@ -9,10 +9,12 @@
         Rectangle:
             pos: self.pos
             size: self.size
-    Label:
-        id:nodetextlabel
-        #text:"lab"
-        pos:root.pos
-        size:root.size
-
+        Line:
+            rectangle:self.pos+[self.width +2, self.height +2]#(100,100,30,10)
+            #points: ()
+            #points: zip(self.data.x, self.data.y)
+        #Line:
+           # points: self.fathers_end_pos+ [self.x,self.y]
+        Line:
+            bezier:[self.fathers_end_pos[0]+self.fathers_width, self.fathers_end_pos[1]] + [self.fathers_end_pos[0] +self.fathers_width + 30, self.fathers_end_pos[1]] + [self.x-30,self.y] + self.pos
 <MainView>:
