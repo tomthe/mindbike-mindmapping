@@ -5,7 +5,7 @@
 # Copyright (C) 2014 Tom Theile
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>. 
+# You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 <Node>:
     #nodetextlabel:nodetextlabel
@@ -68,7 +68,12 @@
                 size_hint_y:None
                 size_hint_x:None
                 id:mv
-        Button:
-            text:"test"
+        BoxLayout:
+            orientation:'horizontal'
             size_hint_y:0.1
-            on_press:root.show_load()
+            Button:
+                text:"Load"
+                on_press:root.show_load()
+            Button:
+                text:"Save"
+                on_press:root.mv.save_map_to_file(None)

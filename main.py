@@ -4,7 +4,7 @@
 # Copyright (C) 2014 Tom Theile
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>. 
+# You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 import kivy
 from kivy.uix.modalview import ModalView
@@ -20,7 +20,31 @@ from kivy.app import App
 from random import randint
 import time
 #from readmm import stringize
-from lxml import etree
+try:
+  from lxml import etree
+  print("running with lxml.etree")
+except ImportError:
+  try:
+    # Python 2.5
+    import xml.etree.cElementTree as etree
+    print("running with cElementTree on Python 2.5+")
+  except ImportError:
+    try:
+      # Python 2.5
+      import xml.etree.ElementTree as etree
+      print("running with ElementTree on Python 2.5+")
+    except ImportError:
+      try:
+        # normal cElementTree install
+        import cElementTree as etree
+        print("running with cElementTree")
+      except ImportError:
+        try:
+          # normal ElementTree install
+          import elementtree.ElementTree as etree
+          print("running with ElementTree")
+        except ImportError:
+          print("Failed to import ElementTree from any known place")
 
 
 kivy.require('1.0.7')
@@ -137,7 +161,7 @@ class Node(Label):
         #a random ID between 10E9 and 10E10:
         ID = "ID_"+ str(randint(1000000000,10000000000))
         #Seconds since epoch:
-        CREATED = str(round(time.time()))
+        CREATED = str(int(time.time()*1000))
 
         #set the xml-node-Attributes:
         newxmlnode.set("TEXT",TEXT)
@@ -162,7 +186,7 @@ class Node(Label):
             self.pos = pos
             childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
-            if xmlnode.get("FOLDED",default="False")=="False" or unfold==True:
+            if xmlnode.get("FOLDED")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
                 self.folded=False
                 for nodechild in xmlnode:
@@ -205,12 +229,17 @@ class Node(Label):
 class MapView(FloatLayout):
     rootnode=None
     firstnode=None
+    loaded_map_filename = "test.mm"
 
     def read_map_from_file(self,filename):
-        tree = etree.parse(filename)
-        self.rootnode = tree.getroot()
+        self.loaded_map_filename = filename
+        print "parse:", filename
+        self.tree = etree.parse(filename)
+        print "parsed..."
+        self.rootnode = self.tree.getroot()
         self.firstnode = self.rootnode.find("node")
         self.firstnode.set("FOLDED","False")
+        print "build_map..."
         self.build_map(self.firstnode,0,"")
 
     def rebuild_map(self):
@@ -234,6 +263,12 @@ class MapView(FloatLayout):
         for node in self.children:
             node.selected = False
 
+    def save_map_to_file(self,filename):
+        if filename==None:
+            filename = self.loaded_map_filename
+        self.tree.write(filename)
+        print "map saved to: ", filename
+
     def close_map(self):
         self.clear_widgets()
         self.rootnode=None
@@ -244,11 +279,13 @@ class MindmapApp(FloatLayout):
 
     def load_map(self,filename):
         try:
+            print "close map"
             self.mv.close_map()
+            print "open map from file: ", filename
             self.mv.read_map_from_file(filename)
         except:
-            print "oh,"
-        self.dismiss_popup()
+            print "oh, loading ",filename, " didn't work... try again?"
+            self.dismiss_popup()
 
 
     def dismiss_popup(self):
@@ -262,6 +299,10 @@ class MindmapApp(FloatLayout):
         self._popup = Popup(title="Load file", content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
+    def save_map(self):
+        self.mv.save_map_to_file()
+
+
 class LoadDialog(ModalView):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
@@ -270,7 +311,7 @@ class mmviewApp(App):
 
     def build(self):
         mindmapapp=MindmapApp()
-        mindmapapp.load_map("test3.mm")
+        mindmapapp.load_map("test.mm")
         return mindmapapp
 
 if __name__ == '__main__':
