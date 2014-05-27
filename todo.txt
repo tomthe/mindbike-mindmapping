@@ -11,11 +11,7 @@ Management-Stuff
 		Kivy-User-group
 		
 Todo - Features
-	save changes to file
-		via lxml
 	delete node
-	support for notes
-	support for node-details
 	support for keyboard-navigation
 	rearrange map
 		drag and drop nodes
@@ -29,9 +25,14 @@ Todo - Features
 				add buttons in the menu
 				
 		Menu:
-			load and save buttons
 			copy, cut, delete, add buttons
-			add a prebuild Android-like menu
+			add a nice, prebuild Android-like menu
+	support and testing on various platforms
+		Android
+		Windows
+		Linux
+	support for notes and node-details
+		complicated, because notes and details use html-syntax
  
 Bugs
 
@@ -46,8 +47,11 @@ Ideas
 	special nodes
 	Plug-In-/addon-infrastructure
 	Python-IDE
+	Latex-Editor
 		
 Done
+	load and save buttons
+	save changes to file
 	Layout and positioning of nodes
 	vertical scrolling
 	horizontal scrolling 
