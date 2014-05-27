@@ -9,5 +9,5 @@ It's written in Python + Kivy, so it runs under Android, iOS, Windows, Linux and
 ### Run the Code ###
 
 Dependencies:
- * Python 2.7
- * Kivy 1.8
+* Python 2.7
+* Kivy 1.8
