@@ -1,5 +1,5 @@
 #:kivy 1.0
-
+#:import join os.path.join
 <Node>:
     #nodetextlabel:nodetextlabel
     size_hint:None,None
@@ -31,14 +31,37 @@
         on_press:root.add_child()
 <MapView>:
 
+<LoadDialog>:
+    #size_hint_y:0.5
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+                #on_press:root.dismiss(force=True)
+            Button:
+                text: "Load"
+                on_release: root.load(join(filechooser.path, filechooser.selection[0]))
+                #on_release: root.dismiss(force=True)
+
+
 <MindmapApp>:
     mv:mv
     BoxLayout:
         orientation:'vertical'
         ScrollView:
             MapView:
+                size_hint_y:None
+                size_hint_x:None
                 id:mv
-                size_hint_y:0.9
         Button:
             text:"test"
             size_hint_y:0.1
+            on_press:root.show_load()

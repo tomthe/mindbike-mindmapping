@@ -9,6 +9,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.textinput import TextInput
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ListProperty, StringProperty,ObjectProperty, BooleanProperty
+from kivy.uix.popup import Popup
 from kivy.app import App
 from random import randint
 import time
@@ -227,18 +228,43 @@ class MapView(FloatLayout):
         for node in self.children:
             node.selected = False
 
+    def close_map(self):
+        self.clear_widgets()
+        self.rootnode=None
+        self.firstnode=None
 
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
 
     def load_map(self,filename):
-        self.mv.read_map_from_file(filename)
+        try:
+            self.mv.close_map()
+            self.mv.read_map_from_file(filename)
+        except:
+            print "oh,"
+        self.dismiss_popup()
+
+
+    def dismiss_popup(self):
+        try:
+            self._popup.dismiss()
+        except:
+            pass
+
+    def show_load(self):
+        content = LoadDialog(load=self.load_map, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content, size_hint=(0.9, 0.9))
+        self._popup.open()
+
+class LoadDialog(ModalView):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
 class mmviewApp(App):
 
     def build(self):
         mindmapapp=MindmapApp()
-        mindmapapp.load_map("testtemp.mm")
+        mindmapapp.load_map("test3.mm")
         return mindmapapp
 
 if __name__ == '__main__':
