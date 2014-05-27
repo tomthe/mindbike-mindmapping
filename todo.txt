@@ -2,7 +2,7 @@ MindBike
 
 Management-Stuff
 	Build Packages and upload them to Bitbucket
-		Android
+		Android http://android.kivy.org/job/3ac06008-0e41-485e-a72f-10c3e4675603
 		Windows
 		(iOS, MacOS)
 	advertise MindBike in suitable forums
