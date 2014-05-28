@@ -17,6 +17,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ListProperty, StringProperty,ObjectProperty, BooleanProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
+from kivy.core.window import Window
 from random import randint
 import time
 #from readmm import stringize
@@ -59,6 +60,7 @@ class NodeTextInput(TextInput):
         super(NodeTextInput, self).__init__(**kwargs)
 
     def on_text_validate(self):
+        print "on_text_validate1", self.node.text, self.text
         newtext=self.text
         self.node.text=unicode(newtext,'utf-8')
         self.node.on_text2()
@@ -119,9 +121,9 @@ class Node(Label):
         return super(Node, self).on_touch_down(touch)
 
     def edit(self):
-        inputsize = self.size[0]+66, self.size[1]+24
+        inputsize = self.size[0]+50, self.size[1]+8
         textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
-        self.add_widget(textinput,-1)
+        self.add_widget(textinput)
 
 
     def fold_unfold(self):
@@ -229,6 +231,12 @@ class MapView(FloatLayout):
     firstnode=None
     tree = None
     loaded_map_filename = "test.mm"
+
+
+#    def __init__(self,**kwargs):
+#        super(MapView, self).__init__(**kwargs)
+#        Window.bind(on_key_down=self.my_key_callback)
+#        def my_key_callback(self, keyboard, keycode, text, modifiers):
 
     def read_map_from_file(self,filename):
         self.loaded_map_filename = filename
