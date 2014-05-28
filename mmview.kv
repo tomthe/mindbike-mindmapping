@@ -72,6 +72,9 @@
             orientation:'horizontal'
             size_hint_y:0.1
             Button:
+                text:"Delete Node"
+                on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
+            Button:
                 text:"Load"
                 on_press:root.show_load()
             Button:
