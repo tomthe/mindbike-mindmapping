@@ -1,0 +1,63 @@
+MindBike
+
+Management-Stuff
+	Build Packages and upload them to Bitbucket
+		Android http://android.kivy.org/job/3ac06008-0e41-485e-a72f-10c3e4675603
+		Windows
+		(iOS, MacOS)
+	advertise MindBike in suitable forums
+		Freeplane-forum
+		FreeMind-forum
+		Kivy-User-group
+		
+Todo - Features
+	delete node
+	support for keyboard-navigation
+	rearrange map
+		drag and drop nodes
+		change order of sibblings
+		change mother-node
+	polish UI
+		Map and notes:
+			nicer colors, nicer buttons, white background?! configurable
+			remove connection-line to root-node
+			folding, editing, selecting, adding nodes:
+				nicer buttons
+				add buttons in the menu
+				
+		Menu:
+			copy, cut, delete, add buttons
+			add a nice, prebuild Android-like menu
+	support and testing on various platforms
+		Android
+		Windows
+		Linux
+	support for notes and node-details
+		complicated, because notes and details use html-syntax
+ 
+Bugs
+
+Ideas
+	version-control
+		safe the history of every node-action in a history-node
+			this makes it possible to undo every action
+		merging of two mindmaps with a common ancestor
+			
+	node-functions
+		evaluate node-text via python eval() to do calculations
+	special nodes
+	Plug-In-/addon-infrastructure
+	Python-IDE
+	Latex-Editor
+		
+Done
+	load and save buttons
+	save changes to file
+	Layout and positioning of nodes
+	vertical scrolling
+	horizontal scrolling 
+	paint connection-lines
+	edit node-text
+	
+	
+	
