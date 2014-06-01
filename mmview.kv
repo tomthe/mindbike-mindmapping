@@ -30,7 +30,7 @@
         on_press:root.fold_unfold()
     Button:
         pos:root.right+root.height+1,root.y
-        size:15,root.height
+        size:root.height,root.height
         on_press:root.edit()
     Button:
         pos:root.right+2*(root.height+1),root.y
@@ -72,6 +72,9 @@
             orientation:'horizontal'
             size_hint_y:None
             height:25
+            Button:
+                text:"Delete Node"
+                on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
             Button:
                 text:"Load"
                 on_press:root.show_load()

@@ -60,6 +60,7 @@ class NodeTextInput(TextInput):
         super(NodeTextInput, self).__init__(**kwargs)
 
     def on_text_validate(self):
+        print "on_text_validate1", self.node.text, self.text
         newtext=self.text
         self.node.text=unicode(newtext,'utf-8')
         self.node.on_text2()
@@ -93,6 +94,7 @@ class Node(Label):
     #posright = AliasProperty(get_posright, set_posright, bind=('pos', 'width'))
     fathers_end_pos=[0,33]
     fathers_width=20
+    VERTICAL_MARGIN = 5
 
     def on_selected(self,instance,value):
         #self.rootwidget.deselect_all()
@@ -120,9 +122,9 @@ class Node(Label):
         return super(Node, self).on_touch_down(touch)
 
     def edit(self):
-        inputsize = self.size[0]+66, self.size[1]+24
+        inputsize = self.size[0]+50, self.size[1]+8
         textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
-        self.add_widget(textinput,-1)
+        self.add_widget(textinput)
 
 
     def fold_unfold(self):
@@ -184,7 +186,7 @@ class Node(Label):
             self.text = xmlnode.get("TEXT")
             self.texture_update()
             self.size = self.texture_size
-            self.bby = self.height+4
+            self.bby = self.height + self.VERTICAL_MARGIN
             self.pos = pos
             childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
@@ -205,11 +207,8 @@ class Node(Label):
                         self.bby += childboxy
 
                 if has_open_children:
-                    pass
-                    #print "has open children, ", self.text
-                    self.bby -= self.height
-                    #self.xmlnnode
-                    self.pos[1] += self.bby/2 - self.height/2 -4
+                    self.bby -= self.height + self.VERTICAL_MARGIN
+                    self.pos[1] += self.bby/2 - self.height/2 #-4
 
             else:
                 self.folded = True
@@ -231,6 +230,7 @@ class Node(Label):
 class MapView(FloatLayout):
     rootnode=None
     firstnode=None
+    tree = None
     loaded_map_filename = "test.mm"
     selectedNodeID="0000"
 
@@ -270,6 +270,12 @@ class MapView(FloatLayout):
 
 
 
+
+#    def __init__(self,**kwargs):
+#        super(MapView, self).__init__(**kwargs)
+#        Window.bind(on_key_down=self.my_key_callback)
+#        def my_key_callback(self, keyboard, keycode, text, modifiers):
+
     def read_map_from_file(self,filename):
         self.loaded_map_filename = filename
         print "parse:", filename
@@ -302,6 +308,30 @@ class MapView(FloatLayout):
         for node in self.children:
             node.selected = False
 
+    def get_selected_node(self):
+        for node in self.children:
+            if node.selected==True:
+                return node
+        return None
+
+    def get_parent_node_by_ID(self,nodeID):
+        for parent in self.tree.getiterator():
+            for child in parent:
+                #... work on parent/child tuple
+                if child.get("ID")==nodeID:
+                    return parent
+
+    def delete_node_by_ID(self,ID):
+        # delete a node from the xml-tree, by selecting its ID-string ("ID_249823749")
+        #"//node[@ID='" + ID + "']" # xpath to find a node with a specific ID
+        self.get_parent_node_by_ID(ID).remove(self.tree.find("//node[@ID='" + ID + "']"))
+        #self.tree.remove(self.tree.find("//node[@ID='" + ID + "']"))
+        self.rebuild_map()
+
+    def delete_node_by_node(self,node):
+        ID=node.xmlnode.get("ID")
+        self.delete_node_by_ID(ID)
+
     def save_map_to_file(self,filename):
         if filename==None:
             filename = self.loaded_map_filename
@@ -324,7 +354,7 @@ class MindmapApp(FloatLayout):
             self.mv.read_map_from_file(filename)
         except:
             print "oh, loading ",filename, " didn't work... try again?"
-            self.dismiss_popup()
+        self.dismiss_popup()
 
 
     def dismiss_popup(self):
