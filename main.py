@@ -17,6 +17,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ListProperty, StringProperty,ObjectProperty, BooleanProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
+from kivy.core.window import Window
 from random import randint
 import time
 #from readmm import stringize
@@ -97,6 +98,7 @@ class Node(Label):
         #self.rootwidget.deselect_all()
         if value:
             self.bgcolor = [0.3,0.1,0.1]
+            self.rootwidget.selectedNodeID=self.xmlnode.get("ID")
         else:
             self.bgcolor = [0.25,0.25,0.25]
 
@@ -230,6 +232,43 @@ class MapView(FloatLayout):
     rootnode=None
     firstnode=None
     loaded_map_filename = "test.mm"
+    selectedNodeID="0000"
+
+
+    def __init__(self, **kwargs):
+        super(MapView, self).__init__(**kwargs)
+        self._keyboard = Window.request_keyboard(
+            self._keyboard_closed, self, 'text')
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
+    def _keyboard_closed(self):
+        print('My keyboard have been closed!')
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        print('The key', keycode, 'have been pressed')
+        print(' - text is %r' % text)
+        print(' - modifiers are %r' % modifiers)
+
+        # Keycode is composed of an integer + a string
+        # If we hit escape, release the keyboard
+        if keycode[1] == 'escape':
+            keyboard.release()
+        elif keycode[1]=="insert":
+            #add a new childnode to the selected node:
+
+            pass
+        elif keycode[1]=="backspace" or keycode[1]=="delete":
+            #delete the selected node
+            pass
+
+        # Return True to accept the key. Otherwise, it will be used by
+        # the system.
+        return True
+
+
+
 
     def read_map_from_file(self,filename):
         self.loaded_map_filename = filename
