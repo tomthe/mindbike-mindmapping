@@ -19,6 +19,7 @@ Todo - Features
 		change mother-node
 	polish UI
 		Map and notes:
+			nicer colors, nicer buttons, white background?! configurable
 			remove connection-line to root-node
 			folding, editing, selecting, adding nodes:
 				nicer buttons
