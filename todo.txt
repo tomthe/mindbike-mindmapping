@@ -11,7 +11,6 @@ Management-Stuff
 		Kivy-User-group
 		
 Todo - Features
-	delete node
 	support for keyboard-navigation
 	rearrange map
 		drag and drop nodes
@@ -51,6 +50,7 @@ Ideas
 	Latex-Editor
 		
 Done
+	delete node
 	load and save buttons
 	save changes to file
 	Layout and positioning of nodes

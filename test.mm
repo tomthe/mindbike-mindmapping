@@ -1,7 +1,7 @@
 <map version="freeplane 1.3.0">
 <!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
 <history ID="44">history!!</history>
-<node TEXT="vk" FOLDED="false" ID="ID_1723255651" CREATED="1283093380553" MODIFIED="1400192931075"><hook NAME="MapStyle">
+<node TEXT="wurzel" FOLDED="False" ID="ID_1723255651" CREATED="1283093380553" MODIFIED="1400192931075"><hook NAME="MapStyle">
     <properties show_icon_for_attributes="true" show_note_icons="true"/>
 
 <map_styles>
@@ -91,13 +91,13 @@
 </html>
 </richcontent>
 </node>
-<node TEXT="mit attribut + &#xfc;" ID="ID_796364143" CREATED="1400197618291" MODIFIED="1400197644346">
+<node TEXT="mit attribut + &#252;" ID="ID_796364143" CREATED="1400197618291" MODIFIED="1400197644346">
 <attribute NAME="atr1" VALUE="55b"/>
 <node TEXT="ccs" ID="ID_1711889197" CREATED="1401125723672" MODIFIED="1401125723672"/>
 <node TEXT="ninini" ID="ID_339133848" CREATED="1401206860551" MODIFIED="1401206863076"/>
 </node>
 </node>
-<node TEXT="knoten2&#xfc;k&#xfc;k&#xfc;k&#xfc;" POSITION="right" ID="ID_301477270" CREATED="1400286744535" MODIFIED="1400286748197">
+<node TEXT="knoten2&#252;k&#252;k&#252;k&#252;" POSITION="right" ID="ID_301477270" CREATED="1400286744535" MODIFIED="1400286748197" FOLDED="False">
 <edge COLOR="#0000ff"/>
 <node TEXT="kno 2-2" ID="ID_1644751104" CREATED="1400286748199" MODIFIED="1400286754921"/>
 <node TEXT="kno2-3" ID="ID_1241684129" CREATED="1400286755333" MODIFIED="1400286760843">
