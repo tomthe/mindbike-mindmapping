@@ -64,6 +64,7 @@ class NodeTextInput(TextInput):
         newtext=self.text
         self.node.text=unicode(newtext,'utf-8')
         self.node.on_text2()
+        self.node.selected=True
         self.node.remove_widget(self)
 
     def on_focus(self,instance,value):
@@ -74,6 +75,7 @@ class NodeTextInput(TextInput):
             #print "defocus",instance, ",-, ", value
             self.on_text_validate()
 
+        #return False
         return super(NodeTextInput, self).on_focus(instance,value)
 
     def on_enter(self,instance,value):
@@ -101,6 +103,7 @@ class Node(Label):
         if value:
             self.bgcolor = [0.3,0.1,0.1]
             self.rootwidget.selectedNodeID=self.xmlnode.get("ID")
+            self.rootwidget.selectedNode=self
         else:
             self.bgcolor = [0.25,0.25,0.25]
 
@@ -122,6 +125,7 @@ class Node(Label):
         return super(Node, self).on_touch_down(touch)
 
     def edit(self):
+        self.rootwidget.textinput_is_active = True
         inputsize = self.size[0]+50, self.size[1]+8
         textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
         self.add_widget(textinput)
@@ -164,6 +168,7 @@ class Node(Label):
         TEXT="_"
         #a random ID between 10E9 and 10E10:
         ID = "ID_"+ str(randint(1000000000,10000000000))
+        self.nid=ID
         #Seconds since epoch:
         CREATED = str(int(time.time()*1000))
 
@@ -175,6 +180,8 @@ class Node(Label):
         self.xmlnode.set("FOLDED","False")
         self.xmlnode.insert(0,newxmlnode)
         self.rootwidget.rebuild_map()
+        self.selected =True
+        return ID
 
     def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50):
         if xmlnode.tag=="node":
@@ -184,6 +191,7 @@ class Node(Label):
             self.fathers_end_pos= fathers_end_pos
             self.fathers_width = fathers_width
             self.text = xmlnode.get("TEXT")
+            self.nid = xmlnode.get("ID")
             self.texture_update()
             self.size = self.texture_size
             self.bby = self.height + self.VERTICAL_MARGIN
@@ -193,7 +201,7 @@ class Node(Label):
             if xmlnode.get("FOLDED")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
                 self.folded=False
-                for nodechild in xmlnode:
+                for nodechild in reversed(xmlnode):
                     if nodechild.tag=="node":
                         has_open_children=True
 
@@ -232,7 +240,8 @@ class MapView(FloatLayout):
     firstnode=None
     tree = None
     loaded_map_filename = "test.mm"
-    selectedNodeID="0000"
+    selectedNodeID="0"
+    textinput_is_active = False
 
 
     def __init__(self, **kwargs):
@@ -243,8 +252,8 @@ class MapView(FloatLayout):
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
-        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
+        #self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        #self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         print('The key', keycode, 'have been pressed')
@@ -255,26 +264,24 @@ class MapView(FloatLayout):
         # If we hit escape, release the keyboard
         if keycode[1] == 'escape':
             keyboard.release()
+        elif keycode[1]=="left":
+            self.select_father()
         elif keycode[1]=="insert":
             #add a new childnode to the selected node:
-
+            self.get_selected_node().add_child()
             pass
         elif keycode[1]=="backspace" or keycode[1]=="delete":
             #delete the selected node
-            pass
-
+            #but first, check if there is no nodeInput open:
+            if self.textinput_is_active==False:
+                self.delete_node_by_ID(self.selectedNodeID)
+        elif keycode[1]=="spacebar":
+            self.get_selected_node().fold_unfold()
+        elif keycode[1]=="f2":
+            self.get_selected_node().edit()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
-
-
-
-
-
-#    def __init__(self,**kwargs):
-#        super(MapView, self).__init__(**kwargs)
-#        Window.bind(on_key_down=self.my_key_callback)
-#        def my_key_callback(self, keyboard, keycode, text, modifiers):
 
     def read_map_from_file(self,filename):
         self.loaded_map_filename = filename
@@ -289,10 +296,12 @@ class MapView(FloatLayout):
 
     def rebuild_map(self):
         self.clear_widgets()
+        self.textinput_is_active = False
         firstnodepos = [0,0]
         newnode=Node()
         self.height = newnode.create_itself(self.firstnode,self,firstnodepos,fathers_end_pos=[0,self.height/2])
         self.add_widget(newnode)
+        self.get_selected_node_by_ID().selected = True
 
     def build_map(self,node,level,outstr):
         if node.tag=="node":
@@ -309,17 +318,49 @@ class MapView(FloatLayout):
             node.selected = False
 
     def get_selected_node(self):
+#        if self.selectedNodeID == "0":
         for node in self.children:
             if node.selected==True:
                 return node
-        return None
+#        else:
+#            for node in self.children:
+#                if node.selected==self.selectedNodeID:
+#                    return node
+        return self.children[0]
+
+    def get_selected_node_by_ID(self):
+
+        if self.selectedNodeID == "0":
+            return self.children[0]
+        else:
+            for node in self.children:
+                if node.nid==self.selectedNodeID:
+                    return node
+        print "upsala, ",node, " --------",self.selectedNodeID
+        return self.children[0]
 
     def get_parent_node_by_ID(self,nodeID):
-        for parent in self.tree.getiterator():
-            for child in parent:
-                #... work on parent/child tuple
-                if child.get("ID")==nodeID:
-                    return parent
+        if nodeID != "0" and nodeID != None:
+            for parent in self.tree.getiterator():
+                for child in parent:
+                    #... work on parent/child tuple
+                    if child.get("ID")==nodeID:
+                        return parent
+        return "0"
+
+    def select_sister(self):
+        #
+        pass
+
+    def select_father(self):
+        #deselect actual node:
+        self.get_selected_node().selected = False
+        #get the parent node, with the help of its ID
+        parent_xml_node = self.get_parent_node_by_ID(self.selectedNodeID)
+        parent_ID = parent_xml_node.get("ID")
+        for node in self.children:
+            if node.nid==parent_ID:
+                node.selected = True
 
     def delete_node_by_ID(self,ID):
         # delete a node from the xml-tree, by selecting its ID-string ("ID_249823749")
