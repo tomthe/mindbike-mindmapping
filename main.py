@@ -266,6 +266,8 @@ class MapView(FloatLayout):
             keyboard.release()
         elif keycode[1]=="left":
             self.select_father()
+        elif keycode[1]=="right":
+            self.select_first_child()
         elif keycode[1]=="insert":
             #add a new childnode to the selected node:
             self.get_selected_node().add_child()
@@ -345,8 +347,40 @@ class MapView(FloatLayout):
                 for child in parent:
                     #... work on parent/child tuple
                     if child.get("ID")==nodeID:
-                        return parent
+                        try:
+                            print parent, "  -  "#, parent.ntext
+                            return parent
+                        except:
+                            pass
         return "0"
+
+    def get_first_child_node_by_parent_ID(self,nodeID):
+        if nodeID != "0" and nodeID != None:
+            for parent in self.tree.getiterator():
+                for child in parent:
+                    print "dadadada--- ", child
+                    #... work on parent/child tuple
+                    if parent.get("ID")==nodeID:
+                        print "dadadada--uhuhuhu- ", child
+                        try:
+                            print child.tag
+                            print child, child.tag=='node'
+                            if child.tag=="node":
+                                return child
+                        except:
+                            print "nope: ", child
+                            pass
+        return "0"
+
+    def select_first_child(self):
+        #deselect actual node:
+        self.get_selected_node().selected = False
+        #get the child node, with the help of its ID
+        child_xml_node = self.get_first_child_node_by_parent_ID(self.selectedNodeID)
+        child_ID = child_xml_node.get("ID")
+        for node in self.children:
+            if node.nid==child_ID:
+                node.selected = True
 
     def select_sister(self):
         #
