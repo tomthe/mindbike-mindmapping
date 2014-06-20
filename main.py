@@ -96,6 +96,8 @@ class Node(Label):
     #posright = AliasProperty(get_posright, set_posright, bind=('pos', 'width'))
     fathers_end_pos=[0,33]
     fathers_width=20
+    father_node=None
+    child_nodes = []
     VERTICAL_MARGIN = 5
 
     def on_selected(self,instance,value):
@@ -178,14 +180,16 @@ class Node(Label):
         newxmlnode.set("CREATED",CREATED)
         newxmlnode.set("MODIFIED",CREATED)
         self.xmlnode.set("FOLDED","False")
-        self.xmlnode.insert(0,newxmlnode)
+        self.xmlnode.insert(-1,newxmlnode)
         self.rootwidget.rebuild_map()
-        self.selected =True
         return ID
 
-    def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50):
+    def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50, father_node=None,i_sibling=0):
         if xmlnode.tag=="node":
             #print "fathersendpos.pos, self.ext: (nnerhalb...,", self.fathers_end_pos,self.text, "fathers..."
+            self.father_node = father_node
+
+            self.child_nodes = []
             self.xmlnode = xmlnode
             self.rootwidget = rootwidget
             self.fathers_end_pos= fathers_end_pos
@@ -196,6 +200,8 @@ class Node(Label):
             self.size = self.texture_size
             self.bby = self.height + self.VERTICAL_MARGIN
             self.pos = pos
+            self.i_sibling =i_sibling
+            i_sibling_for_children=0
             childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
             if xmlnode.get("FOLDED")=="False" or unfold==True:
@@ -203,16 +209,20 @@ class Node(Label):
                 self.folded=False
                 for nodechild in reversed(xmlnode):
                     if nodechild.tag=="node":
+                        i_sibling_for_children +=1
                         has_open_children=True
 
                         newnode = Node()
                         #print "self.pos, self.ext: (nnerhalb...,",self.pos,self.text
                         # newnode.canvas.
-                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width)
+                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children)
                         rootwidget.add_widget(newnode)
                         #self.childnodes.append(newnode)
                         childpos[1]  += childboxy
                         self.bby += childboxy
+                        self.child_nodes.append(newnode)
+                for childnode in self.child_nodes:
+                    childnode.siblings = self.child_nodes
 
                 if has_open_children:
                     self.bby -= self.height + self.VERTICAL_MARGIN
@@ -257,8 +267,8 @@ class MapView(FloatLayout):
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         print('The key', keycode, 'have been pressed')
-        print(' - text is %r' % text)
-        print(' - modifiers are %r' % modifiers)
+        #print(' - text is %r' % text)
+        #print(' - modifiers are %r' % modifiers)
 
         # Keycode is composed of an integer + a string
         # If we hit escape, release the keyboard
@@ -268,6 +278,10 @@ class MapView(FloatLayout):
             self.select_father()
         elif keycode[1]=="right":
             self.select_first_child()
+        elif keycode[1]=="up":
+            self.select_sibling(1)
+        elif keycode[1]=="down":
+            self.select_sibling(-1)
         elif keycode[1]=="insert":
             #add a new childnode to the selected node:
             self.get_selected_node().add_child()
@@ -276,7 +290,8 @@ class MapView(FloatLayout):
             #delete the selected node
             #but first, check if there is no nodeInput open:
             if self.textinput_is_active==False:
-                self.delete_node_by_ID(self.selectedNodeID)
+                self.delete_selected_node()
+                #self.delete_node_by_ID(self.selectedNodeID)
         elif keycode[1]=="spacebar":
             self.get_selected_node().fold_unfold()
         elif keycode[1]=="f2":
@@ -373,18 +388,36 @@ class MapView(FloatLayout):
         return "0"
 
     def select_first_child(self):
-        #deselect actual node:
-        self.get_selected_node().selected = False
-        #get the child node, with the help of its ID
-        child_xml_node = self.get_first_child_node_by_parent_ID(self.selectedNodeID)
-        child_ID = child_xml_node.get("ID")
-        for node in self.children:
-            if node.nid==child_ID:
-                node.selected = True
+        thisnode=self.get_selected_node()
+        try:
+            thisnode.child_nodes[-1].selected=True
+            thisnode.selected=False
+        except:
+            try:
+                if thisnode.folded==True:
+                    thisnode.unfold()
+                    self.rebuild_map()
+                    thisnode=self.get_selected_node()
+                    thisnode.child_nodes[-1].selected=True
+                    thisnode.selected=False
+            except:
+                print "no childs to select!"
 
-    def select_sister(self):
-        #
-        pass
+    def select_sibling(self,direction=1):
+        thisnode=self.get_selected_node()
+        print "select_sister", thisnode.ntext,thisnode.text
+        #print thisnode.siblings
+        try:
+            print direction, thisnode.i_sibling,[x.text for x in thisnode.siblings]
+            thisnode.siblings[thisnode.i_sibling+direction-1].selected=True
+            thisnode.selected=False
+        except:
+            try:
+                print "ohoh,"
+                thisnode.siblings[direction-1].selected=True
+                thisnode.selected=False
+            except:
+                print "no siblings to select!"
 
     def select_father(self):
         #deselect actual node:
@@ -396,10 +429,19 @@ class MapView(FloatLayout):
             if node.nid==parent_ID:
                 node.selected = True
 
+
+    def delete_selected_node(self):
+        print "delet this node:",
+        thisnode = self.get_selected_node()
+        thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
+        thisnode.father_node.selected = True
+        self.rebuild_map()
+
     def delete_node_by_ID(self,ID):
         # delete a node from the xml-tree, by selecting its ID-string ("ID_249823749")
         #"//node[@ID='" + ID + "']" # xpath to find a node with a specific ID
         self.get_parent_node_by_ID(ID).remove(self.tree.find("//node[@ID='" + ID + "']"))
+        #self.get_selected_node_by_ID(ID).father_node.remove(self.xmlnode)
         #self.tree.remove(self.tree.find("//node[@ID='" + ID + "']"))
         self.rebuild_map()
 
