@@ -65,6 +65,8 @@ class NodeTextInput(TextInput):
         self.node.text=unicode(newtext,'utf-8')
         self.node.on_text2()
         self.node.selected=True
+        self.node.rootwidget.is_editing = False
+        self.node.textinput=None
         self.node.remove_widget(self)
 
     def on_focus(self,instance,value):
@@ -129,8 +131,9 @@ class Node(Label):
     def edit(self):
         self.rootwidget.textinput_is_active = True
         inputsize = self.size[0]+50, self.size[1]+8
-        textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
-        self.add_widget(textinput)
+        self.textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
+        self.add_widget(self.textinput)
+        self.rootwidget.is_editing = True
 
 
     def fold_unfold(self):
@@ -179,8 +182,9 @@ class Node(Label):
         newxmlnode.set("ID",ID)
         newxmlnode.set("CREATED",CREATED)
         newxmlnode.set("MODIFIED",CREATED)
+        newxmlnode.set("SELECTED","TRUE")
         self.xmlnode.set("FOLDED","False")
-        self.xmlnode.insert(-1,newxmlnode)
+        self.xmlnode.insert(0,newxmlnode)
         self.rootwidget.rebuild_map()
         return ID
 
@@ -204,6 +208,11 @@ class Node(Label):
             i_sibling_for_children=0
             childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
+            if self.xmlnode.get("SELECTED","False")=="TRUE":
+                print "selected!!!"
+                self.selected=True
+                del self.xmlnode.attrib["SELECTED"]
+
             if xmlnode.get("FOLDED")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
                 self.folded=False
@@ -252,6 +261,7 @@ class MapView(FloatLayout):
     loaded_map_filename = "test.mm"
     selectedNodeID="0"
     textinput_is_active = False
+    is_editing=False
 
 
     def __init__(self, **kwargs):
@@ -272,30 +282,39 @@ class MapView(FloatLayout):
 
         # Keycode is composed of an integer + a string
         # If we hit escape, release the keyboard
-        if keycode[1] == 'escape':
-            keyboard.release()
-        elif keycode[1]=="left":
-            self.select_father()
-        elif keycode[1]=="right":
-            self.select_first_child()
-        elif keycode[1]=="up":
-            self.select_sibling(1)
-        elif keycode[1]=="down":
-            self.select_sibling(-1)
-        elif keycode[1]=="insert":
-            #add a new childnode to the selected node:
-            self.get_selected_node().add_child()
-            pass
-        elif keycode[1]=="backspace" or keycode[1]=="delete":
-            #delete the selected node
-            #but first, check if there is no nodeInput open:
-            if self.textinput_is_active==False:
-                self.delete_selected_node()
-                #self.delete_node_by_ID(self.selectedNodeID)
-        elif keycode[1]=="spacebar":
-            self.get_selected_node().fold_unfold()
-        elif keycode[1]=="f2":
-            self.get_selected_node().edit()
+        if self.is_editing == False:
+            if keycode[1] == 'escape':
+                keyboard.release()
+            elif keycode[1]=="left":
+                self.select_father()
+            elif keycode[1]=="right":
+                self.select_first_child()
+            elif keycode[1]=="up":
+                self.select_sibling(1)
+            elif keycode[1]=="down":
+                self.select_sibling(-1)
+            elif keycode[1]=="insert":
+                #add a new childnode to the selected node:
+                self.get_selected_node().add_child()
+                pass
+            elif keycode[1]=="backspace" or keycode[1]=="delete":
+                #delete the selected node
+                #but first, check if there is no nodeInput open:
+                if self.textinput_is_active==False:
+                    self.delete_selected_node()
+                    #self.delete_node_by_ID(self.selectedNodeID)
+            elif keycode[1]=="spacebar":
+                self.get_selected_node().fold_unfold()
+            elif keycode[1]=="f2":
+                self.get_selected_node().edit()
+            elif keycode[1]=="enter":
+                self.add_sibling()
+            else:
+                self.get_selected_node().edit()
+        else:
+            if keycode[1] == 'enter':
+                print "enter4"
+                self.get_selected_node().textinput.on_text_validate()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
@@ -344,6 +363,10 @@ class MapView(FloatLayout):
 #                if node.selected==self.selectedNodeID:
 #                    return node
         return self.children[0]
+
+    def add_sibling(self):
+        thisnode= self.get_selected_node()
+        thisnode.father_node.add_child()
 
     def get_selected_node_by_ID(self):
 
