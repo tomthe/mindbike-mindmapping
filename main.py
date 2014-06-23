@@ -54,7 +54,7 @@ class NodeTextInput(TextInput):
     node=None
 
     def __init__(self,**kwargs):
-        #print "node kwargs:", kwargs
+        print "node kwargs:", kwargs
         self.node=kwargs['node']
         #self.bind(focus=self.on_focus)
         super(NodeTextInput, self).__init__(**kwargs)
@@ -130,8 +130,9 @@ class Node(Label):
 
     def edit(self):
         self.rootwidget.textinput_is_active = True
-        inputsize = self.size[0]+50, self.size[1]+8
-        self.textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
+        inputsize = [100,40]#(self.width, self.height)#[self.size[0]+50, self.size[1]+8]
+        self.textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=True)
+        self.textinput.height=29
         self.rootwidget.add_widget(self.textinput)
 
 
@@ -357,8 +358,11 @@ class MapView(FloatLayout):
     def get_selected_node(self):
 #        if self.selectedNodeID == "0":
         for node in self.children:
-            if node.selected==True:
-                return node
+            try:
+                if node.selected==True:
+                    return node
+            except:
+                pass
 #        else:
 #            for node in self.children:
 #                if node.selected==self.selectedNodeID:
