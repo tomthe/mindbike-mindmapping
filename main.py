@@ -95,6 +95,7 @@ class NodeTextInput(TextInput):
 
     def adjust_input_size(self):
         self.height = (1 + self.text.count('\n')) * 22
+        self.width = 200
         #self.width =
 
 
@@ -247,9 +248,16 @@ class Node(Label):
                     childnode.siblings = self.child_nodes
 
                 if has_open_children:
-                    self.bby -= self.height + self.VERTICAL_MARGIN
-                    self.pos[1] += self.bby/2 - self.height/2 #-4
-
+                    if self.height < self.bby:
+                        self.bby -= self.height + self.VERTICAL_MARGIN
+                        self.pos[1] += self.bby/2 - self.height/2 #-4
+                        if self.bby < self.height:
+                            self.pos[1] -= self.bby/2 - self.height/2 #-4
+                            self.bby = self.height
+                            print "--------------------------------------ohohohoho",self.text
+                    else:
+                        print "-----------------------------------------height"
+                        self.bby = self.height
             else:
                 self.folded = True
                 #print "folded: ",self.text,xmlnode.find("node")

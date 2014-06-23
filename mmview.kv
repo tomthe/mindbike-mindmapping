@@ -26,15 +26,15 @@
             bezier:[self.fathers_end_pos[0]+self.fathers_width, self.fathers_end_pos[1]] + [self.fathers_end_pos[0] +self.fathers_width + 30, self.fathers_end_pos[1]] + [self.x-30,self.y] + self.pos
     Button:
         pos:root.right,root.y
-        size:root.height,root.height
+        size:(16,16)#root.height,root.height
         on_press:root.fold_unfold()
     Button:
-        pos:root.right+root.height+1,root.y
-        size:root.height,root.height
+        pos:root.right + 16+1,root.y
+        size:(16,16)#root.height,root.height
         on_press:root.edit()
     Button:
-        pos:root.right+2*(root.height+1),root.y
-        size:root.height,root.height
+        pos:root.right + 2*(16+1),root.y
+        size:(16,16)#root.height,root.height
         on_press:root.add_child()
 <MapView>:
 
