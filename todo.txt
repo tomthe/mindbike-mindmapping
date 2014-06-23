@@ -39,6 +39,8 @@ Todo - Features
 		complicated, because notes and details use html-syntax
  
 Bugs
+	multiline-nodes
+		crash layout
 	input-behavior
 		'enter' on selected node
 			now: adds sibling node at beginning...
