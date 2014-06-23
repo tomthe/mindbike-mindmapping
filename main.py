@@ -55,12 +55,16 @@ class NodeTextInput(TextInput):
 
     def __init__(self,**kwargs):
         print "node kwargs:", kwargs
+        self.size_hint = (None,None)
         self.node=kwargs['node']
+        self.node.rootwidget.textinput_is_active = True
         #self.bind(focus=self.on_focus)
         super(NodeTextInput, self).__init__(**kwargs)
 
-    def on_text_validate(self):
-        print "on_text_validate1", self.node.text, self.text
+    def on_text_validate(self,remove_enter=False):
+        if remove_enter:
+            self.text = self.text[:-1]
+        print "on_text_validate1-1", self.node.text, "|||",self.text
         newtext=self.text
         self.node.text=unicode(newtext,'utf-8')
         self.node.on_text2()
@@ -75,14 +79,23 @@ class NodeTextInput(TextInput):
             #print "focus",instance, ",-, ", value
         else:
             #print "defocus",instance, ",-, ", value
-            self.on_text_validate()
-
+            #self.on_text_validate()
+            pass
         #return False
         return super(NodeTextInput, self).on_focus(instance,value)
 
     def on_enter(self,instance,value):
         pass
         # print "enter gedrueckt!!"
+
+    def on_text(self,instance,value):
+        #print "line numbers: ", value.count('\n')
+        #self.height = (1 + value.count('\n')) * 22
+        self.adjust_input_size()
+
+    def adjust_input_size(self):
+        self.height = (1 + self.text.count('\n')) * 22
+        #self.width =
 
 
 class Node(Label):
@@ -130,7 +143,7 @@ class Node(Label):
 
     def edit(self):
         self.rootwidget.textinput_is_active = True
-        inputsize = [100,40]#(self.width, self.height)#[self.size[0]+50, self.size[1]+8]
+        inputsize = (self.width, self.height)#[self.size[0]+50, self.size[1]+8]
         self.textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=True)
         self.textinput.height=29
         self.rootwidget.add_widget(self.textinput)
@@ -275,10 +288,10 @@ class MapView(FloatLayout):
         #self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        print('The key', keycode, 'have been pressed')
+        #print('The key', keycode, 'have been pressed')
         #print(' - text is %r' % text)
         #print(' - modifiers are %r' % modifiers)
-
+        print " textinput_is_active:", self.textinput_is_active
         # Keycode is composed of an integer + a string
         # If we hit escape, release the keyboard
         if self.textinput_is_active == False:
@@ -312,11 +325,14 @@ class MapView(FloatLayout):
                 self.get_selected_node().edit()
         else:
             if keycode[1] == 'enter':
-                try:
-                    print "enter4"
-                    self.get_selected_node().textinput.on_text_validate()
-                except:
-                    print "oh... no node.textinput"
+                if 'shift' in modifiers:
+                    print "shift is pressed..."
+                else:
+                    try:
+                        print "enter4"
+                        self.get_selected_node().textinput.on_text_validate(remove_enter=True)
+                    except:
+                        print "oh... no node.textinput"
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
@@ -334,7 +350,7 @@ class MapView(FloatLayout):
 
     def rebuild_map(self):
         self.clear_widgets()
-        self.textinput_is_active = False
+        #self.textinput_is_active = False
         firstnodepos = [0,0]
         newnode=Node()
         self.height = newnode.create_itself(self.firstnode,self,firstnodepos,fathers_end_pos=[0,self.height/2])
@@ -356,12 +372,16 @@ class MapView(FloatLayout):
             node.selected = False
 
     def get_selected_node(self):
+        return self.selectedNode
+
 #        if self.selectedNodeID == "0":
         for node in self.children:
             try:
                 if node.selected==True:
+                    print "get_selected_node: node found"
                     return node
             except:
+                print "get_selected_node: not-node-error"
                 pass
 #        else:
 #            for node in self.children:

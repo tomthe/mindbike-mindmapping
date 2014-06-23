@@ -44,8 +44,9 @@ Bugs
 			now: adds sibling node at beginning...
 			should: add sibling node under selected
 				xml-->add node at specific position
+	solved Bugs
 		textinput is too big
-			I don't understand why?!
+			I don't understand why?! - solved: size_hint must be (None,None)
 Ideas
 	version-control
 		safe the history of every node-action in a history-node
