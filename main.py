@@ -65,9 +65,9 @@ class NodeTextInput(TextInput):
         self.node.text=unicode(newtext,'utf-8')
         self.node.on_text2()
         self.node.selected=True
-        self.node.rootwidget.is_editing = False
+        self.node.rootwidget.textinput_is_active = False
         self.node.textinput=None
-        self.node.remove_widget(self)
+        self.node.rootwidget.remove_widget(self)
 
     def on_focus(self,instance,value):
         if value:
@@ -132,8 +132,7 @@ class Node(Label):
         self.rootwidget.textinput_is_active = True
         inputsize = self.size[0]+50, self.size[1]+8
         self.textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=False)
-        self.add_widget(self.textinput)
-        self.rootwidget.is_editing = True
+        self.rootwidget.add_widget(self.textinput)
 
 
     def fold_unfold(self):
@@ -261,7 +260,6 @@ class MapView(FloatLayout):
     loaded_map_filename = "test.mm"
     selectedNodeID="0"
     textinput_is_active = False
-    is_editing=False
 
 
     def __init__(self, **kwargs):
@@ -282,7 +280,7 @@ class MapView(FloatLayout):
 
         # Keycode is composed of an integer + a string
         # If we hit escape, release the keyboard
-        if self.is_editing == False:
+        if self.textinput_is_active == False:
             if keycode[1] == 'escape':
                 keyboard.release()
             elif keycode[1]=="left":
@@ -313,8 +311,11 @@ class MapView(FloatLayout):
                 self.get_selected_node().edit()
         else:
             if keycode[1] == 'enter':
-                print "enter4"
-                self.get_selected_node().textinput.on_text_validate()
+                try:
+                    print "enter4"
+                    self.get_selected_node().textinput.on_text_validate()
+                except:
+                    print "oh... no node.textinput"
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
