@@ -39,7 +39,13 @@ Todo - Features
 		complicated, because notes and details use html-syntax
  
 Bugs
-
+	input-behavior
+		'enter' on selected node
+			now: adds sibling node at beginning...
+			should: add sibling node under selected
+				xml-->add node at specific position
+		textinput is too big
+			I don't understand why?!
 Ideas
 	version-control
 		safe the history of every node-action in a history-node
