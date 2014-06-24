@@ -70,23 +70,25 @@ class NodeTextInput(TextInput):
         self.node.on_text2()
         self.node.selected=True
         self.node.rootwidget.textinput_is_active = False
-        self.node.textinput=None
-        self.node.rootwidget.remove_widget(self)
+        if self.parent:
+            print "888888888888888888888888888888888888 parent vorhanden! parent!"
+            self.parent.remove_widget(self)
+        else:
+            print "77777777777777777777777777777777777arg kein parent!"
+        del self
+
 
     def on_focus(self,instance,value):
         if value:
             pass
-            #print "focus",instance, ",-, ", value
         else:
-            #print "defocus",instance, ",-, ", value
-            #self.on_text_validate()
+            self.on_text_validate()
             pass
-        #return False
         return super(NodeTextInput, self).on_focus(instance,value)
 
     def on_enter(self,instance,value):
+        print "enter gedrueckt!!"
         pass
-        # print "enter gedrueckt!!"
 
     def on_text(self,instance,value):
         #print "line numbers: ", value.count('\n')
@@ -94,10 +96,8 @@ class NodeTextInput(TextInput):
         self.adjust_input_size()
 
     def adjust_input_size(self):
-        self.height = (1 + self.text.count('\n')) * 22
-        self.width = 200
-        #self.width =
-
+        self.height = (1 + self.text.count('\n')) * 19 + 10
+        self.width = 400
 
 class Node(Label):
     selected=BooleanProperty(False)
@@ -114,6 +114,7 @@ class Node(Label):
     fathers_width=20
     father_node=None
     child_nodes = []
+    siblings = []
     VERTICAL_MARGIN = 5
 
     def on_selected(self,instance,value):
@@ -122,8 +123,19 @@ class Node(Label):
             self.bgcolor = [0.3,0.1,0.1]
             self.rootwidget.selectedNodeID=self.xmlnode.get("ID")
             self.rootwidget.selectedNode=self
+            #print self.pos, self.parent.size,self.parent.parent.size, self.parent.parent.scroll_x,self.parent.parent.scroll_y
+            self.get_optimal_scroll_pos()
         else:
             self.bgcolor = [0.25,0.25,0.25]
+
+    def get_optimal_scroll_pos(self):
+        bottom_bound = self.parent.parent.scroll_y * (self.parent.height-self.parent.parent.height)
+        upper_bound = bottom_bound + self.parent.parent.height
+        if self.y >= upper_bound:
+            self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
+        elif self.y <= bottom_bound:
+            self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
+
 
     def set_posright(self,value):
         self.pos= [value[0] - self.width, value[1]]
@@ -142,12 +154,12 @@ class Node(Label):
                 self.selected = not self.selected
         return super(Node, self).on_touch_down(touch)
 
-    def edit(self):
+    def edit(self,text=""):
         self.rootwidget.textinput_is_active = True
-        inputsize = (self.width, self.height)#[self.size[0]+50, self.size[1]+8]
-        self.textinput = NodeTextInput(node=self,size=inputsize, pos=self.pos,text=self.text, focus=True, multiline=True)
-        self.textinput.height=29
-        self.rootwidget.add_widget(self.textinput)
+        if self.text== "_":
+            self.text=""
+        textinput = NodeTextInput(node=self, pos=self.pos,text=self.text + text, focus=True, multiline=True)
+        self.rootwidget.add_widget(textinput)
 
 
     def fold_unfold(self):
@@ -177,14 +189,25 @@ class Node(Label):
         self.xmlnode.set(u"TEXT",unicode(self.text,))
         self.rootwidget.rebuild_map()
 
-    def add_child(self):
+    def add_sibling(self):
+        n_siblings = len(self.siblings)
+        print self.siblings
+        print ([x.tag for x in self.father_node.xmlnode])
+        n_non_node_xmls = len([x.tag for x in self.father_node.xmlnode]) - n_siblings
+        n_non_node_xmls_until_now = len([x.tag for x in self.father_node.xmlnode][self.i_sibling-1:]) - [x.tag for x in self.father_node.xmlnode][self.i_sibling-1:].count("node")
+        print "n_siblings:", n_siblings, " not-node-xmls: ", n_non_node_xmls, "; i_sibling: ", self.i_sibling, "; n_non_node_xmls_until_now: ", n_non_node_xmls_until_now
+        position = len(self.siblings) - self.i_sibling + 1 + n_non_node_xmls_until_now
+        print "p, p2: ", position
+        self.father_node.add_child(position)
+
+    def add_child(self,position=200):
         #einen neuen "node" erstellen
         #<node TEXT="knot1-2" ID="ID_1021949625" CREATED="1400192771540" MODIFIED="1400197616894">
         #TEXT="nimi" ID="ID_1004240095" CREATED="140 062 763 512 6" MODIFIED="1400627638635"
-
+        print position, "add...                                       ----"
         newxmlnode = etree.Element("node")
         #The Text is empty
-        TEXT="_"
+        TEXT=" "
         #a random ID between 10E9 and 10E10:
         ID = "ID_"+ str(randint(1000000000,10000000000))
         self.nid=ID
@@ -198,8 +221,11 @@ class Node(Label):
         newxmlnode.set("MODIFIED",CREATED)
         newxmlnode.set("SELECTED","TRUE")
         self.xmlnode.set("FOLDED","False")
-        self.xmlnode.insert(0,newxmlnode)
+
+        print position, "position"
+        self.xmlnode.insert(position,newxmlnode)
         self.rootwidget.rebuild_map()
+
         return ID
 
     def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50, father_node=None,i_sibling=0):
@@ -213,12 +239,15 @@ class Node(Label):
             self.fathers_end_pos= fathers_end_pos
             self.fathers_width = fathers_width
             self.text = xmlnode.get("TEXT")
+            #if self.text == "":
+            #   self.text = "_"
             self.nid = xmlnode.get("ID")
             self.texture_update()
             self.size = self.texture_size
             self.bby = self.height + self.VERTICAL_MARGIN
             self.pos = pos
             self.i_sibling =i_sibling
+            #print i_sibling, self.text
             i_sibling_for_children=0
             childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
@@ -330,7 +359,7 @@ class MapView(FloatLayout):
             elif keycode[1]=="enter":
                 self.add_sibling()
             else:
-                self.get_selected_node().edit()
+                self.get_selected_node().edit(text)
         else:
             if keycode[1] == 'enter':
                 if 'shift' in modifiers:
@@ -343,7 +372,7 @@ class MapView(FloatLayout):
                         print "oh... no node.textinput"
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
-        return True
+        return False
 
     def read_map_from_file(self,filename):
         self.loaded_map_filename = filename
@@ -398,8 +427,7 @@ class MapView(FloatLayout):
         return self.children[0]
 
     def add_sibling(self):
-        thisnode= self.get_selected_node()
-        thisnode.father_node.add_child()
+        self.get_selected_node().add_sibling()
 
     def get_selected_node_by_ID(self):
 
@@ -464,7 +492,7 @@ class MapView(FloatLayout):
         print "select_sister", thisnode.ntext,thisnode.text
         #print thisnode.siblings
         try:
-            print direction, thisnode.i_sibling,[x.text for x in thisnode.siblings]
+            print direction, thisnode.i_sibling,[x.text for x in thisnode.siblings], len(thisnode.siblings)
             thisnode.siblings[thisnode.i_sibling+direction-1].selected=True
             thisnode.selected=False
         except:
@@ -487,10 +515,13 @@ class MapView(FloatLayout):
 
 
     def delete_selected_node(self):
-        print "delet this node:",
-        thisnode = self.get_selected_node()
-        thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
-        thisnode.father_node.selected = True
+        try:
+            print "delet this node:",
+            thisnode = self.get_selected_node()
+            thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
+            thisnode.father_node.selected = True
+        except:
+            print "exception: deletion failed"
         self.rebuild_map()
 
     def delete_node_by_ID(self,ID):
@@ -520,14 +551,14 @@ class MindmapApp(FloatLayout):
     mv=ObjectProperty()
 
     def load_map(self,filename):
-        try:
+        #try:
             print "close map"
             self.mv.close_map()
             print "open map from file: ", filename
             self.mv.read_map_from_file(filename)
-        except:
+        #except:
             print "oh, loading ",filename, " didn't work... try again?"
-        self.dismiss_popup()
+        #self.dismiss_popup()
 
 
     def dismiss_popup(self):
