@@ -67,16 +67,16 @@ class NodeTextInput(TextInput):
         print "on_text_validate1-1", self.node.text, "|||",self.text
         newtext=self.text
         self.node.text=unicode(newtext,'utf-8')
-        self.node.on_text2()
-        self.node.selected=True
         self.node.rootwidget.textinput_is_active = False
+        #self.node.rootwidget.textinput  = None
         if self.parent:
             print "888888888888888888888888888888888888 parent vorhanden! parent!"
             self.parent.remove_widget(self)
         else:
             print "77777777777777777777777777777777777arg kein parent!"
-        del self
-
+        self.focus=False
+        self.node.on_text2()
+        self.node.rootwidget.rebuild_map()
 
     def on_focus(self,instance,value):
         if value:
@@ -160,6 +160,7 @@ class Node(Label):
             self.text=""
         textinput = NodeTextInput(node=self, pos=self.pos,text=self.text + text, focus=True, multiline=True)
         self.rootwidget.add_widget(textinput)
+        #self.rootwidget.textinput = textinput
 
 
     def fold_unfold(self):
@@ -187,7 +188,7 @@ class Node(Label):
         #print "on_text",unicode(self.text)#,instance,value
         #self.width=self.texture_size[0]
         self.xmlnode.set(u"TEXT",unicode(self.text,))
-        self.rootwidget.rebuild_map()
+        #self.rootwidget.rebuild_map()
 
     def add_sibling(self):
         n_siblings = len(self.siblings)
@@ -207,7 +208,7 @@ class Node(Label):
         print position, "add...                                       ----"
         newxmlnode = etree.Element("node")
         #The Text is empty
-        TEXT=" "
+        TEXT="_"
         #a random ID between 10E9 and 10E10:
         ID = "ID_"+ str(randint(1000000000,10000000000))
         self.nid=ID
@@ -265,10 +266,11 @@ class Node(Label):
                         has_open_children=True
 
                         newnode = Node()
+                        rootwidget.add_widget(newnode)
                         #print "self.pos, self.ext: (nnerhalb...,",self.pos,self.text
                         # newnode.canvas.
                         childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children)
-                        rootwidget.add_widget(newnode)
+
                         #self.childnodes.append(newnode)
                         childpos[1]  += childboxy
                         self.bby += childboxy
@@ -366,8 +368,8 @@ class MapView(FloatLayout):
                     print "shift is pressed..."
                 else:
                     try:
-                        print "enter4"
-                        self.get_selected_node().textinput.on_text_validate(remove_enter=True)
+                        print "enter4",self.children[0].text, self.children
+                        self.children[0].on_text_validate(remove_enter=True)
                     except:
                         print "oh... no node.textinput"
         # Return True to accept the key. Otherwise, it will be used by
