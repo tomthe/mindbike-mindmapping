@@ -1,0 +1,84 @@
+#:kivy 1.0
+#:import join os.path.join
+
+# MindBike Mindmapping - Mindmap viewer and editor for mobile devices and desktop platforms
+# Copyright (C) 2014 Tom Theile
+# This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+<Node>:
+    #nodetextlabel:nodetextlabel
+    size_hint:None,None
+    drag_rectangle: self.x, self.y, self.width, self.height
+    canvas.before:
+        Color:
+            rgb: root.bgcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Line:
+            rectangle:self.pos+[self.width +2, self.height +2]#(100,100,30,10)
+            #points: ()
+            #points: zip(self.data.x, self.data.y)
+        #Line:
+           # points: self.fathers_end_pos+ [self.x,self.y]
+        Line:
+            bezier:[self.fathers_end_pos[0]+self.fathers_width, self.fathers_end_pos[1]] + [self.fathers_end_pos[0] +self.fathers_width + 30, self.fathers_end_pos[1]] + [self.x-30,self.y] + self.pos
+    Button:
+        pos:root.right,root.y
+        size:(16,16)#root.height,root.height
+        on_press:root.fold_unfold()
+    Button:
+        pos:root.right + 16+1,root.y
+        size:(16,16)#root.height,root.height
+        on_press:root.edit()
+    Button:
+        pos:root.right + 2*(16+1),root.y
+        size:(16,16)#root.height,root.height
+        on_press:root.add_child()
+<MapView>:
+
+<LoadDialog>:
+    #size_hint_y:0.5
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+                #on_press:root.dismiss(force=True)
+            Button:
+                text: "Load"
+                on_release: root.load(join(filechooser.path, filechooser.selection[0]))
+                #on_release: root.dismiss(force=True)
+
+
+<MindmapApp>:
+    mv:mv
+    BoxLayout:
+        orientation:'vertical'
+        ScrollView:
+            MapView:
+                size_hint_y:None
+                size_hint_x:None
+                id:mv
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint_y:None
+            height:25
+            Button:
+                text:"Delete Node"
+                on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
+            Button:
+                text:"Load"
+                on_press:root.show_load()
+            Button:
+                text:"Save"
+                on_press:root.mv.save_map_to_file(None)
