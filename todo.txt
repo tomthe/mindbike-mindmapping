@@ -14,13 +14,17 @@ Management-Stuff
 Todo - Features
 	support for keyboard-navigation
 		how?
-			keyboard-recognition is already implemented, I need functions like "select_son", select_brother_up, select_brother_down, select_father
+			keyboard-recognition is already implemented, I need functions like "select_son", select_brother_up, select_brother_down, 
+			select_father
 			get the id of the apropiate node and
 	rearrange map
+		cut, copy & paste
 		drag and drop nodes
 		change order of sibblings
 		change mother-node
+	undo, redo, history
 	polish UI
+		behaviour
 		Map and notes:
 			nicer colors, nicer buttons, white background?! configurable
 			remove connection-line to root-node
@@ -37,18 +41,18 @@ Todo - Features
 		Linux
 	support for notes and node-details
 		complicated, because notes and details use html-syntax
- 
 Bugs
-	multiline-nodes
-		crash layout
 	input-behavior
 		'enter' on selected node
 			now: adds sibling node at beginning...
 			should: add sibling node under selected
 				xml-->add node at specific position
-	solved Bugs
-		textinput is too big
-			I don't understand why?! - solved: size_hint must be (None,None)
+				ok, but with some exceptions
+solved Bugs
+	textinput is too big
+		I don't understand why?! - solved: size_hint must be (None,None)
+	multiline-nodes
+		crash layout
 Ideas
 	version-control
 		safe the history of every node-action in a history-node
@@ -72,6 +76,7 @@ Ideas
 	Latex-Editor
 		
 Done
+	drag screen if node outside of the screen is selected (by keyboard)
 	delete node
 	load and save buttons
 	save changes to file
