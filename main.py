@@ -129,13 +129,21 @@ class Node(Label):
             self.bgcolor = [0.25,0.25,0.25]
 
     def get_optimal_scroll_pos(self):
+        #vertical:
         bottom_bound = self.parent.parent.scroll_y * (self.parent.height-self.parent.parent.height)
         upper_bound = bottom_bound + self.parent.parent.height
         if self.y >= upper_bound:
             self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
         elif self.y <= bottom_bound:
             self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
+        #horizontal:
 
+        left_bound = self.parent.parent.scroll_x * (self.parent.width-self.parent.parent.width)
+        right_bound = left_bound + self.parent.parent.width
+        if self.x >= right_bound:
+            self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
+        elif self.x <= left_bound:
+            self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
 
     def set_posright(self,value):
         self.pos= [value[0] - self.width, value[1]]
@@ -149,9 +157,10 @@ class Node(Label):
             if touch.is_double_tap:
                 print "double!!! ", self.text, self.pos,self.size
                 self.edit()
+            #elif touch.
             else:
                 #self.fold_unfold()
-                self.selected = not self.selected
+                self.selected = True
         return super(Node, self).on_touch_down(touch)
 
     def edit(self,text=""):
@@ -377,15 +386,18 @@ class MapView(FloatLayout):
         return False
 
     def read_map_from_file(self,filename):
-        self.loaded_map_filename = filename
-        print "parse:", filename
-        self.tree = etree.parse(filename)
-        print "parsed..."
-        self.rootnode = self.tree.getroot()
-        self.firstnode = self.rootnode.find("node")
-        self.firstnode.set("FOLDED","False")
-        print "build_map..."
-        self.build_map(self.firstnode,0,"")
+        try:
+            self.loaded_map_filename = filename
+            print "parse:", filename
+            self.tree = etree.parse(filename)
+            print "parsed..."
+            self.rootnode = self.tree.getroot()
+            self.firstnode = self.rootnode.find("node")
+            self.firstnode.set("FOLDED","False")
+            print "build_map..."
+            self.build_map(self.firstnode,0,"")
+        except:
+            print "file doesn't exist!"
 
     def rebuild_map(self):
         self.clear_widgets()
@@ -401,6 +413,7 @@ class MapView(FloatLayout):
             newnode=Node(fathers_end_pos=[20,0])
             firstnodepos = [0,0]
             self.height = newnode.create_itself(node,self,firstnodepos)
+            self.selectedNode = newnode
             self.add_widget(newnode)
         else:
             print "what?", node.tag
