@@ -17,6 +17,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ListProperty, StringProperty,ObjectProperty, BooleanProperty
 from kivy.uix.popup import Popup
 from kivy.app import App
+from kivy.logger import Logger
 from kivy.core.window import Window
 from random import randint
 import time
@@ -326,8 +327,12 @@ class MapView(FloatLayout):
 
     def __init__(self, **kwargs):
         super(MapView, self).__init__(**kwargs)
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
-        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+        Logger.info("about to init the keyboard....")
+        try:
+            self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
+            self._keyboard.bind(on_key_down=self._on_keyboard_down)
+        except:
+            Logger.exception('keyboard couldnt be loaded!')
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
