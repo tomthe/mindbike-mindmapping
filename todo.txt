@@ -23,6 +23,8 @@ Todo - Features
 		change order of sibblings
 		change mother-node
 	undo, redo, history
+	right- and left-headed nodes
+		for me not necessary... for others it may be
 	polish UI
 		behaviour
 		Map and notes:
