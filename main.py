@@ -326,14 +326,13 @@ class MapView(FloatLayout):
 
     def __init__(self, **kwargs):
         super(MapView, self).__init__(**kwargs)
-        self._keyboard = Window.request_keyboard(
-            self._keyboard_closed, self, 'text')
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
-        #self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        #self._keyboard = None
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         #print('The key', keycode, 'have been pressed')
@@ -566,14 +565,14 @@ class MindmapApp(FloatLayout):
     mv=ObjectProperty()
 
     def load_map(self,filename):
-        #try:
+        try:
             print "close map"
             self.mv.close_map()
             print "open map from file: ", filename
             self.mv.read_map_from_file(filename)
-        #except:
+        except:
             print "oh, loading ",filename, " didn't work... try again?"
-        #self.dismiss_popup()
+        self.dismiss_popup()
 
 
     def dismiss_popup(self):
