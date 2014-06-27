@@ -7,8 +7,12 @@
 # You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 import kivy
+from kivy.app import App
+from kivy.config import Config
 from kivy.uix.modalview import ModalView
 from kivy.uix.boxlayout import BoxLayout
+#from kivy.uix.scatterlayout import ScatterLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
@@ -16,11 +20,12 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ListProperty, StringProperty,ObjectProperty, BooleanProperty
 from kivy.uix.popup import Popup
-from kivy.app import App
 from kivy.logger import Logger
 from kivy.core.window import Window
 from random import randint
 import time
+from ast import literal_eval
+
 #from readmm import stringize
 try:
   from lxml import etree
@@ -131,20 +136,23 @@ class Node(Label):
 
     def get_optimal_scroll_pos(self):
         #vertical:
-        bottom_bound = self.parent.parent.scroll_y * (self.parent.height-self.parent.parent.height)
-        upper_bound = bottom_bound + self.parent.parent.height
-        if self.y >= upper_bound:
-            self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
-        elif self.y <= bottom_bound:
-            self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
-        #horizontal:
+        try:
+            bottom_bound = self.parent.parent.scroll_y * (self.parent.height-self.parent.parent.height)
+            upper_bound = bottom_bound + self.parent.parent.height
+            if self.y >= upper_bound:
+                self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
+            elif self.y <= bottom_bound:
+                self.parent.parent.scroll_y = (float(self.y)/self.parent.height)
+            #horizontal:
 
-        left_bound = self.parent.parent.scroll_x * (self.parent.width-self.parent.parent.width)
-        right_bound = left_bound + self.parent.parent.width
-        if self.x >= right_bound:
-            self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
-        elif self.x <= left_bound:
-            self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
+            left_bound = self.parent.parent.scroll_x * (self.parent.width-self.parent.parent.width)
+            right_bound = left_bound + self.parent.parent.width
+            if self.x >= right_bound:
+                self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
+            elif self.x <= left_bound:
+                self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
+        except:
+            pass
 
     def set_posright(self,value):
         self.pos= [value[0] - self.width, value[1]]
@@ -197,6 +205,13 @@ class Node(Label):
     def on_text2(self):
         #print "on_text",unicode(self.text)#,instance,value
         #self.width=self.texture_size[0]
+        if self.text[0]=="=":
+            #try:
+                self.text=str(literal_eval(self.text[1:]))
+            #except:
+                pass
+                print "eval: ", str(self.text)
+                print "evaluieren:  ",str(eval("23*5")),str(literal_eval("23*5"))
         self.xmlnode.set(u"TEXT",unicode(self.text,))
         #self.rootwidget.rebuild_map()
 
@@ -249,9 +264,10 @@ class Node(Label):
             self.rootwidget = rootwidget
             self.fathers_end_pos= fathers_end_pos
             self.fathers_width = fathers_width
-            self.text = xmlnode.get("TEXT")
-            #if self.text == "":
-            #   self.text = "_"
+            self.text = xmlnode.get("TEXT","NO_TEXT")
+            if self.text == "":
+               self.text = "_"
+
             self.nid = xmlnode.get("ID")
             self.texture_update()
             self.size = self.texture_size
@@ -316,7 +332,7 @@ class Node(Label):
             return 0
 
 
-class MapView(FloatLayout):
+class MapView(RelativeLayout):
     rootnode=None
     firstnode=None
     tree = None
@@ -343,10 +359,14 @@ class MapView(FloatLayout):
         #print('The key', keycode, 'have been pressed')
         #print(' - text is %r' % text)
         #print(' - modifiers are %r' % modifiers)
-        print " textinput_is_active:", self.textinput_is_active
+        print " textinput_is_active:", self.textinput_is_active, keycode, modifiers
         # Keycode is composed of an integer + a string
         # If we hit escape, release the keyboard
         if self.textinput_is_active == False:
+            if len(modifiers)>0:
+                if modifiers[0]=="ctrl":
+                    if keycode[1]=="s":
+                        self.save_map_to_file()
             if keycode[1] == 'escape':
                 keyboard.release()
             elif keycode[1]=="left":
@@ -373,8 +393,10 @@ class MapView(FloatLayout):
                 self.get_selected_node().edit()
             elif keycode[1]=="enter":
                 self.add_sibling()
-            else:
+            elif keycode[1] in ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','ö','ä','ü']:
                 self.get_selected_node().edit(text)
+            else:
+                pass
         else:
             if keycode[1] == 'enter':
                 if 'shift' in modifiers:
@@ -555,11 +577,14 @@ class MapView(FloatLayout):
         ID=node.xmlnode.get("ID")
         self.delete_node_by_ID(ID)
 
-    def save_map_to_file(self,filename):
-        if filename==None:
-            filename = self.loaded_map_filename
-        self.tree.write(filename)
-        print "map saved to: ", filename
+    def save_map_to_file(self,filename=None):
+        if filename == None:
+            filename=self.loaded_map_filename
+        try:
+            self.tree.write(filename)
+            print "map saved to: ", filename
+        except:
+            Logger.error("couldnt save map to " + filename)
 
     def close_map(self):
         self.clear_widgets()
@@ -568,6 +593,7 @@ class MapView(FloatLayout):
 
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
+    app=ObjectProperty()
 
     def load_map(self,filename):
         try:
@@ -575,8 +601,14 @@ class MindmapApp(FloatLayout):
             self.mv.close_map()
             print "open map from file: ", filename
             self.mv.read_map_from_file(filename)
+            print "map loaded!", filename
+            self.app.config.set('files','filename',filename)
         except:
             print "oh, loading ",filename, " didn't work... try again?"
+            try:
+                self.show_load()
+            except:
+                Logger.error("couldnt show the load-dialog")
         self.dismiss_popup()
 
 
@@ -600,11 +632,59 @@ class LoadDialog(ModalView):
     cancel = ObjectProperty(None)
 
 class mmviewApp(App):
+    #config
 
     def build(self):
-        mindmapapp=MindmapApp()
-        mindmapapp.load_map("test.mm")
-        return mindmapapp
+        self.config.set('kivy', 'exit_on_escape', '0')
+        self.mindmapapp=MindmapApp(app=self)
+        self.mindmapapp.load_map(self.config.get("files","filename"))
+        return self.mindmapapp
+
+    def build_config(self, config):
+        config.setdefaults('files', {
+            'filename': 'new.mm',
+            'key1': 'blabla',
+            'key2': '42'
+        })
+
+    def build_settings(self, settings):
+        jsondata = """
+[
+    { "type": "title",
+      "title": "Mindbike  File Preferences" },
+
+    { "type": "string",
+      "title": "Filename",
+      "desc": "The default loaded map",
+      "section": "files",
+      "key": "filename" },
+
+    { "type": "options",
+      "title": "My first key",
+      "desc": "Description of my first key",
+      "section": "files",
+      "key": "key1",
+      "options": ["value1", "value2", "another value"] },
+
+    { "type": "numeric",
+      "title": "My second key",
+      "desc": "Description of my second key",
+      "section": "files",
+      "key": "key2" }
+]
+"""
+        settings.add_json_panel('Mindbike Preferences',
+            self.config, data=jsondata)
+
+    def on_pause(self):
+      # loosing context on Android, iOS
+      print "pause..."
+      self.mindmapapp.save_map()
+      self.config.write()
+      return True
+
+    def on_stop(self):
+        self.on_pause()
 
 if __name__ == '__main__':
     mmviewApp().run()
