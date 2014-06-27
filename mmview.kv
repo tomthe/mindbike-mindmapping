@@ -27,15 +27,15 @@
             bezier:[self.fathers_end_pos[0]+self.fathers_width, self.fathers_end_pos[1]] + [self.fathers_end_pos[0] +self.fathers_width + 30, self.fathers_end_pos[1]] + [self.x-30,self.y] + self.pos
     Button:
         pos:root.right,root.y
-        size:(16,16)#root.height,root.height
+        size:root.font_size,root.height
         on_press:root.fold_unfold()
+#    Button:
+#        pos:root.right + root.font_size + 3, root.y
+#        size:root.font_size,root.height
+#        on_press:root.edit()
     Button:
-        pos:root.right + 16+1,root.y
-        size:(16,16)#root.height,root.height
-        on_press:root.edit()
-    Button:
-        pos:root.right + 2*(16+1),root.y
-        size:(16,16)#root.height,root.height
+        pos:root.right + 1*(root.font_size+3),root.y
+        size:root.font_size,root.height
         on_press:root.add_child()
 <MapView>:
     id:mav
@@ -74,7 +74,7 @@
         BoxLayout:
             orientation:'horizontal'
             size_hint_y:None
-            height:25
+            height:45
             Button:
                 text:"Delete Node"
                 on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
@@ -84,3 +84,6 @@
             Button:
                 text:"Save"
                 on_press:root.mv.save_map_to_file(None)
+            Button:
+                text:"Settings"
+                on_press:root.app.open_settings()
