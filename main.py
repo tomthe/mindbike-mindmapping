@@ -8,7 +8,7 @@
 
 import kivy
 from kivy.app import App
-from kivy.config import Config
+#from kivy.config import Config
 from kivy.uix.modalview import ModalView
 from kivy.uix.boxlayout import BoxLayout
 #from kivy.uix.scatterlayout import ScatterLayout
@@ -24,9 +24,9 @@ from kivy.logger import Logger
 from kivy.core.window import Window
 from random import randint
 import time
-#from ast import literal_eval
 
 #from readmm import stringize
+
 try:
   from lxml import etree
   print("running with lxml.etree")
@@ -205,13 +205,13 @@ class Node(Label):
     def on_text2(self):
         #print "on_text",unicode(self.text)#,instance,value
         #self.width=self.texture_size[0]
-        if self.text[0]=="=":
+        #if self.text[0]=="=":
             #try:
-                self.text=str(eval(self.text[1:]))
+        #        self.text=str(eval(self.text[1:]))
             #except:
-                pass
-                print "eval: ", str(self.text)
-                print "evaluieren:  ",str(eval("23*5")),str(eval("23*5"))
+        #        pass
+        #        print "eval: ", str(self.text)
+        #        print "evaluieren:  ",str(eval("23*5")),str(eval("23*5"))
         self.xmlnode.set(u"TEXT",unicode(self.text,))
         #self.rootwidget.rebuild_map()
 
