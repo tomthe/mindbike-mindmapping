@@ -336,8 +336,8 @@ class MapView(FloatLayout):
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
-        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
+        #self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        #self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         #print('The key', keycode, 'have been pressed')
