@@ -24,7 +24,7 @@ from kivy.logger import Logger
 from kivy.core.window import Window
 from random import randint
 import time
-from ast import literal_eval
+#from ast import literal_eval
 
 #from readmm import stringize
 try:
@@ -207,11 +207,11 @@ class Node(Label):
         #self.width=self.texture_size[0]
         if self.text[0]=="=":
             #try:
-                self.text=str(literal_eval(self.text[1:]))
+                self.text=str(eval(self.text[1:]))
             #except:
                 pass
                 print "eval: ", str(self.text)
-                print "evaluieren:  ",str(eval("23*5")),str(literal_eval("23*5"))
+                print "evaluieren:  ",str(eval("23*5")),str(eval("23*5"))
         self.xmlnode.set(u"TEXT",unicode(self.text,))
         #self.rootwidget.rebuild_map()
 
