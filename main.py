@@ -6,6 +6,8 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
+__version__= "0.2.1"
+
 import kivy
 from kivy.app import App
 #from kivy.config import Config
@@ -646,6 +648,7 @@ class mmviewApp(App):
             'key1': 'blabla',
             'key2': '42'
         })
+        config.setdefaults('kivy', {'exit_on_escape': '0'})
 
     def build_settings(self, settings):
         jsondata = """
