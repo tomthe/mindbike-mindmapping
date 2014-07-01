@@ -23,7 +23,7 @@ from kivy.uix.popup import Popup
 from kivy.logger import Logger
 from kivy.core.window import Window
 from random import randint
-import time
+from time import time
 
 #from readmm import stringize
 
@@ -238,7 +238,7 @@ class Node(Label):
         ID = "ID_"+ str(randint(1000000000,10000000000))
         self.nid=ID
         #Seconds since epoch:
-        CREATED = str(int(time.time()*1000))
+        CREATED = str(int(time()*1000))
 
         #set the xml-node-Attributes:
         newxmlnode.set("TEXT",TEXT)
