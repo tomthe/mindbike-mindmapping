@@ -25,11 +25,11 @@ source.exclude_dirs = tests, bin, .hg
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-#version.regex = __version__ = ['"](.*)['"]
-#version.filename = %(source.dir)s/main.py
+version.regex = __version__ = ['"](.*)['"]
+version.filename = %(source.dir)s/main.py
 
 # (str) Application versioning (method 2)
-version = 0.2
+#version = 0.2
 
 # (list) Application requirements
 requirements = kivy, lxml
