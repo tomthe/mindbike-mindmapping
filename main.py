@@ -6,7 +6,7 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-__version__= "0.2.1"
+__version__ = "0.3"
 
 import kivy
 from kivy.app import App
@@ -104,7 +104,9 @@ class NodeTextInput(TextInput):
         self.adjust_input_size()
 
     def adjust_input_size(self):
-        self.height = (1 + self.text.count('\n')) * 19 + 10
+        print "line_height:", self.line_height, self.font_size,self.font_name, self.minimum_height, ", (self.t...): ", (2 + self.text.count('\n')) * (self.font_size + 3)
+        self.height = max(self.minimum_height, (2 + self.text.count('\n')) * (self.font_size + 3))#(1 + self.text.count('\n')) * 19 + 10
+        print "line_heigh2:", self.line_height, self.font_size,self.font_name, self.height
         self.width = 400
 
 class Node(Label):

@@ -47,7 +47,7 @@ requirements = kivy, lxml
 orientation = all
 
 # (bool) Indicate if the application should be fullscreen or not
-fullscreen = 1
+fullscreen = 0
 
 
 #
