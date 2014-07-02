@@ -1,0 +1,129 @@
+MindBike
+
+Management-Stuff
+	Build Packages and upload them to Bitbucket
+		Android http://android.kivy.org/job/3ac06008-0e41-485e-a72f-10c3e4675603
+			building works with xubuntu + buildozer,
+			app works on my phone
+			uploaded to bitbucket - check
+		Windows
+			works, but not to a single file
+		(iOS, MacOS)
+			complicated, ... Mac needed
+	find testers and contributors (and users)
+		advertise MindBike in suitable forums
+			Freeplane-forum
+			FreeMind-forum
+			Kivy-User-group
+		
+Todo - Features
+	rearrange map
+		cut, copy & paste
+		drag and drop nodes
+		change order of sibblings
+		change mother-node
+	store settings for next-time-use
+		what
+			last opened file -check
+			
+		how
+			research on kivy-website
+	undo, redo, history
+		
+	right- and left-headed nodes
+		for me not necessary... for others it may be
+	polish UI
+		behaviour
+		Map and notes:
+			nicer colors, nicer buttons, white background?! configurable
+			remove connection-line to root-node
+			folding, editing, selecting, adding nodes:
+				nicer buttons
+				add buttons in the menu
+				
+		Menu:
+			copy, cut, delete, add buttons
+			add a nice, prebuild Android-like menu
+	support and testing on various platforms
+		Android
+		Windows
+		Linux
+	support for notes and node-details
+		complicated, because notes and details use html-syntax
+		convert html to markdown, show it with kivy-label
+		write markdown, convert and save it with html
+	tabbed-panel for more than one open map
+		necessary to show #tag-maps
+	start-screen
+		easy entry point especially for first-time users
+		Options:
+			Create new Map
+			Load map from File
+			Open last map 1
+			Open last map 2...
+Bugs
+	input-behavior
+		'enter' on selected node
+			now: adds sibling node at beginning...
+			should: add sibling node under selected
+				xml-->add node at specific position
+				ok, but with some exceptions
+solved Bugs
+	textinput is too big
+		I don't understand why?! - solved: size_hint must be (None,None)
+	multiline-nodes
+		crash layout
+Ideas
+	version-control
+		safe the history of every node-action in a history-node
+			this makes it possible to undo every action
+			thoughts about the necessary definitions:
+				every possible action should be correctly noted in the history
+				the history should enable Undos and Redos
+				the history should not get to big
+				time and "username" should be saved together with it
+				possible actions and related information and actions:
+					add a new node
+						parentID and newID
+					edit a leaf node
+						ID, old
+					edit a node with children
+					delete a leaf node
+					delete a node with children
+					move a node w/o children
+				
+			definitions:
+			
+				<history><historyaction action="[newnode|modify|delete|]" parentid="12345465"
+		merging of two mindmaps with a common ancestor
+	#tag-system/getting-things-done-implementation
+		idea
+			add tags to some nodes: "nodetext...blabla #tag"..."nodetext... #priority:high", " nodetext...#priority:low"...
+			derive a new map from those tags:
+				#tag....
+				#priority
+					#low
+						"nodetext...#priority:low"
+					#high
+						....
+	node-functions
+		evaluate node-text via python eval() to do calculations
+	special nodes
+	Plug-In-/addon-infrastructure
+	Python-IDE
+	Latex-Editor
+		
+Done
+	support for keyboard-navigation
+	drag screen if node outside of the screen is selected (by keyboard)
+	delete node
+	load and save buttons
+	save changes to file
+	Layout and positioning of nodes
+	vertical scrolling
+	horizontal scrolling 
+	paint connection-lines
+	edit node-text
+	
+	
+	
