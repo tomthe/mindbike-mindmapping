@@ -18,6 +18,10 @@ Management-Stuff
 		
 Todo - Features
 	rearrange map
+		how
+			copy node to a clipboard-variable
+			delete node
+			add clipboard-node to another node
 		cut, copy & paste
 		drag and drop nodes
 		change order of sibblings
@@ -44,6 +48,15 @@ Todo - Features
 		Menu:
 			copy, cut, delete, add buttons
 			add a nice, prebuild Android-like menu
+		start-screen
+			easy entry point especially for first-time users
+			Options:
+				Create new Map
+					ask for a $name; copy new.mm to $name.mm and open it
+				Load map from File
+					open load-dialog
+				Open last map 1
+				Open last map 2...
 	support and testing on various platforms
 		Android
 		Windows
@@ -54,13 +67,6 @@ Todo - Features
 		write markdown, convert and save it with html
 	tabbed-panel for more than one open map
 		necessary to show #tag-maps
-	start-screen
-		easy entry point especially for first-time users
-		Options:
-			Create new Map
-			Load map from File
-			Open last map 1
-			Open last map 2...
 Bugs
 	input-behavior
 		'enter' on selected node
@@ -91,10 +97,14 @@ Ideas
 					delete a leaf node
 					delete a node with children
 					move a node w/o children
-				
+			How?
+				history element next to rootxml...
+				add a history-node for every action:
+					add: subelement "historyaction"; attribute["action"]=newnode ...subelement node...
+					modify:
 			definitions:
 			
-				<history><historyaction action="[newnode|modify|delete|]" parentid="12345465"
+				<history><historyaction action="[newnode|modify|delete|]" parentid="12345465" time="8347534092"...
 		merging of two mindmaps with a common ancestor
 	#tag-system/getting-things-done-implementation
 		idea

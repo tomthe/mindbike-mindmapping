@@ -51,7 +51,7 @@
             id: filechooser
         BoxLayout:
             size_hint_y: None
-            height: 30
+            height: '30dp'
             Button:
                 text: "Cancel"
                 on_release: root.cancel()
@@ -64,17 +64,36 @@
 
 <MindmapApp>:
     mv:mv
+    tabpanel:tabpanel
+    startmenu:startmenu
     BoxLayout:
         orientation:'vertical'
-        ScrollView:
-            MapView:
-                size_hint_y:None
-                size_hint_x:None
-                id:mv
+        TabbedPanel:
+            id:tabpanel
+            do_default_tab:False
+            TabbedPanelItem:
+                BoxLayout:
+                    id:startmenu
+                    orientation:'vertical'
+                    Label:
+                        text:"Welcome to Mindbike-Mindmapping!"
+                    Button:
+                        text:"Create a new Map"
+                    Button:
+                        text:"Load a Map from File"
+            TabbedPanelItem:
+                ScrollView:
+                    MapView:
+                        size_hint_y:None
+                        size_hint_x:None
+                        id:mv
+            TabbedPanelItem:
+                Button:
+                    text:"test"
         BoxLayout:
             orientation:'horizontal'
             size_hint_y:None
-            height:45
+            height:'35dp'
             Button:
                 text:"Delete Node"
                 on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
