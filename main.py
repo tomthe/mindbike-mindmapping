@@ -193,6 +193,8 @@ class Node(Label):
         else:
             print "single-de-fold!! unfold! ", self.text, self.pos,self.size
             self.unfold()
+        self.selected = True
+        #self.rootwidget.selectedNode = self
         self.rootwidget.rebuild_map()
 
     def fold(self):
@@ -426,7 +428,8 @@ class MapView(RelativeLayout):
             self.firstnode.set("FOLDED","False")
             print "build_map..."
             self.build_map(self.firstnode,0,"")
-        except:
+        except Exception, e:
+            Logger.error("couldnt read map from file: " + str(e))
             print "file doesn't exist!"
 
     def rebuild_map(self):
@@ -598,6 +601,14 @@ class MapView(RelativeLayout):
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
     app=ObjectProperty()
+    startmenu = ObjectProperty()
+
+    def __init__(self, **kwargs):
+        super(MindmapApp, self).__init__(**kwargs)
+        #bt_open_last_map
+        #self.startmenu.add_widget()
+
+
 
     def load_map(self,filename):
         try:
@@ -614,6 +625,7 @@ class MindmapApp(FloatLayout):
             except:
                 Logger.error("couldnt show the load-dialog")
         self.dismiss_popup()
+        print self.tabpanel
 
 
     def dismiss_popup(self):
