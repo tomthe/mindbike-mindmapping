@@ -29,9 +29,6 @@ Todo - Features
 	store settings for next-time-use
 		what
 			last opened file -check
-			
-		how
-			research on kivy-website
 	undo, redo, history
 		
 	right- and left-headed nodes
@@ -44,7 +41,6 @@ Todo - Features
 			folding, editing, selecting, adding nodes:
 				nicer buttons
 				add buttons in the menu
-				
 		Menu:
 			copy, cut, delete, add buttons
 			add a nice, prebuild Android-like menu
@@ -62,12 +58,16 @@ Todo - Features
 		Windows
 		Linux
 	support for notes and node-details
-		complicated, because notes and details use html-syntax
-		convert html to markdown, show it with kivy-label
-		write markdown, convert and save it with html
+		complicated, because notes and details use html-syntax and I want to keep compatibility with Freemind and Freeplane
+		convert html to reStructuredText(rst), show it with kivy-label
+		write RST, convert and save it with html
 	tabbed-panel for more than one open map
 		necessary to show #tag-maps
 Bugs
+	tabbedPanel: map in a not-active panel receives keyboard-events and does some unexpected behaviour
+		solve:
+			realise when the tabpanel is active/inactive and de/activate the keyboard-processing...
+			but how to sense
 	input-behavior
 		'enter' on selected node
 			now: adds sibling node at beginning...
