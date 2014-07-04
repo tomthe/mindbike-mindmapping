@@ -72,6 +72,7 @@
             id:tabpanel
             do_default_tab:False
             TabbedPanelItem:
+                text:'Start'
                 BoxLayout:
                     id:startmenu
                     orientation:'vertical'
@@ -79,15 +80,18 @@
                         text:"Welcome to Mindbike-Mindmapping!"
                     Button:
                         text:"Create a new Map"
+                        on_press:root.get_newfilename()
                     Button:
                         text:"Load a Map from File"
             TabbedPanelItem:
+                text:'Map'
                 ScrollView:
                     MapView:
                         size_hint_y:None
                         size_hint_x:None
                         id:mv
             TabbedPanelItem:
+                text:'TagMap'
                 Button:
                     text:"test"
         BoxLayout:

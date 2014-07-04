@@ -26,6 +26,7 @@ from kivy.logger import Logger
 from kivy.core.window import Window
 from random import randint
 from time import time
+from shutil import copyfile
 
 #from readmm import stringize
 
@@ -505,10 +506,9 @@ class MapView(RelativeLayout):
         if nodeID != "0" and nodeID != None:
             for parent in self.tree.getiterator():
                 for child in parent:
-                    print "dadadada--- ", child
                     #... work on parent/child tuple
                     if parent.get("ID")==nodeID:
-                        print "dadadada--uhuhuhu- ", child
+                        #print "dadadada--uhuhuhu- ", child
                         try:
                             print child.tag
                             print child, child.tag=='node'
@@ -540,12 +540,11 @@ class MapView(RelativeLayout):
         print "select_sister", thisnode.ntext,thisnode.text
         #print thisnode.siblings
         try:
-            print direction, thisnode.i_sibling,[x.text for x in thisnode.siblings], len(thisnode.siblings)
+            #print direction, thisnode.i_sibling,[x.text for x in thisnode.siblings], len(thisnode.siblings)
             thisnode.siblings[thisnode.i_sibling+direction-1].selected=True
             thisnode.selected=False
         except:
             try:
-                print "ohoh,"
                 thisnode.siblings[direction-1].selected=True
                 thisnode.selected=False
             except:
@@ -568,8 +567,8 @@ class MapView(RelativeLayout):
             thisnode = self.get_selected_node()
             thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
             thisnode.father_node.selected = True
-        except:
-            print "exception: deletion failed"
+        except Exception, e:
+            Logger.error("Node-deletion failed.   " + str(e))
         self.rebuild_map()
 
     def delete_node_by_ID(self,ID):
@@ -589,9 +588,9 @@ class MapView(RelativeLayout):
             filename=self.loaded_map_filename
         try:
             self.tree.write(filename)
-            print "map saved to: ", filename
-        except:
-            Logger.error("couldnt save map to " + filename)
+            Logger.info("map saved to: "+ filename)
+        except Exception, e:
+            Logger.error("couldnt save map to " + filename + "   " + str(e))
 
     def close_map(self):
         self.clear_widgets()
@@ -626,6 +625,24 @@ class MindmapApp(FloatLayout):
                 Logger.error("couldnt show the load-dialog")
         self.dismiss_popup()
         print self.tabpanel
+
+    def create_new_map(self,newname):
+        self.save_map()
+        try:
+            copyfile("new.mm", newname)
+            self.load_map(newname)
+        except Exception, e:
+            Logger.error("couldn't create a new file with the filename " + newname + str(e))
+
+    def get_newfilename(self):
+        Popup(title="Enter text here",
+              content=TextInput(focus=True),
+              size_hint=(0.6, 0.6),
+              on_dismiss=self.set_caption).open()
+
+    def set_caption(self, popup):
+        print popup.content.text
+
 
 
     def dismiss_popup(self):
