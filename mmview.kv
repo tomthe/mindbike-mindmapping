@@ -83,8 +83,10 @@
                         on_press:root.get_newfilename()
                     Button:
                         text:"Load a Map from File"
+                        on_press:root.show_load()
             TabbedPanelItem:
                 text:'Map'
+                on_state:mv.set_mapview_is_active(self.state)
                 ScrollView:
                     MapView:
                         size_hint_y:None
