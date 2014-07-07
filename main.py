@@ -346,6 +346,7 @@ class MapView(RelativeLayout):
     loaded_map_filename = "test.mm"
     selectedNodeID="0"
     textinput_is_active = False
+    mapview_is_active = False
 
 
     def __init__(self, **kwargs):
@@ -366,56 +367,57 @@ class MapView(RelativeLayout):
         #print('The key', keycode, 'have been pressed')
         #print(' - text is %r' % text)
         #print(' - modifiers are %r' % modifiers)
-        print " textinput_is_active:", self.textinput_is_active, keycode, modifiers
-        # Keycode is composed of an integer + a string
-        # If we hit escape, release the keyboard
-        if self.textinput_is_active == False:
-            if len(modifiers)>0:
-                if modifiers[0]=="ctrl":
-                    if keycode[1]=="s":
-                        self.save_map_to_file()
-            if keycode[1] == 'escape':
-                keyboard.release()
-            elif keycode[1]=="left":
-                self.select_father()
-            elif keycode[1]=="right":
-                self.select_first_child()
-            elif keycode[1]=="up":
-                self.select_sibling(1)
-            elif keycode[1]=="down":
-                self.select_sibling(-1)
-            elif keycode[1]=="insert":
-                #add a new childnode to the selected node:
-                self.get_selected_node().add_child()
-                pass
-            elif keycode[1]=="backspace" or keycode[1]=="delete":
-                #delete the selected node
-                #but first, check if there is no nodeInput open:
-                if self.textinput_is_active==False:
-                    self.delete_selected_node()
-                    #self.delete_node_by_ID(self.selectedNodeID)
-            elif keycode[1]=="spacebar":
-                self.get_selected_node().fold_unfold()
-            elif keycode[1]=="f2":
-                self.get_selected_node().edit()
-            elif keycode[1]=="enter":
-                self.add_sibling()
-            elif keycode[1] in ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','ö','ä','ü']:
-                self.get_selected_node().edit(text)
-            else:
-                pass
-        else:
-            if keycode[1] == 'enter':
-                if 'shift' in modifiers:
-                    print "shift is pressed..."
+        if self.mapview_is_active==True:
+            print " textinput_is_active:", self.textinput_is_active, keycode, modifiers
+            # Keycode is composed of an integer + a string
+            # If we hit escape, release the keyboard
+            if self.textinput_is_active == False:
+                if len(modifiers)>0:
+                    if modifiers[0]=="ctrl":
+                        if keycode[1]=="s":
+                            self.save_map_to_file()
+                if keycode[1] == 'escape':
+                    keyboard.release()
+                elif keycode[1]=="left":
+                    self.select_father()
+                elif keycode[1]=="right":
+                    self.select_first_child()
+                elif keycode[1]=="up":
+                    self.select_sibling(1)
+                elif keycode[1]=="down":
+                    self.select_sibling(-1)
+                elif keycode[1]=="insert":
+                    #add a new childnode to the selected node:
+                    self.get_selected_node().add_child()
+                    pass
+                elif keycode[1]=="backspace" or keycode[1]=="delete":
+                    #delete the selected node
+                    #but first, check if there is no nodeInput open:
+                    if self.textinput_is_active==False:
+                        self.delete_selected_node()
+                        #self.delete_node_by_ID(self.selectedNodeID)
+                elif keycode[1]=="spacebar":
+                    self.get_selected_node().fold_unfold()
+                elif keycode[1]=="f2":
+                    self.get_selected_node().edit()
+                elif keycode[1]=="enter":
+                    self.add_sibling()
+                elif keycode[1] in ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','ö','ä','ü']:
+                    self.get_selected_node().edit(text)
                 else:
-                    try:
-                        print "enter4",self.children[0].text, self.children
-                        self.children[0].on_text_validate(remove_enter=True)
-                    except:
-                        print "oh... no node.textinput"
-        # Return True to accept the key. Otherwise, it will be used by
-        # the system.
+                    pass
+            else:
+                if keycode[1] == 'enter':
+                    if 'shift' in modifiers:
+                        print "shift is pressed..."
+                    else:
+                        try:
+                            print "enter4",self.children[0].text, self.children
+                            self.children[0].on_text_validate(remove_enter=True)
+                        except:
+                            print "oh... no node.textinput"
+            # Return True to accept the key. Otherwise, it will be used by
+            # the system.
         return False
 
     def read_map_from_file(self,filename):
@@ -597,16 +599,25 @@ class MapView(RelativeLayout):
         self.rootnode=None
         self.firstnode=None
 
+    def set_mapview_is_active(self, state):
+        print "state: ", state
+        if state=='down': # down--> button-down--> active
+            self.mapview_is_active = True
+        else: # if state=='normal' --> not active
+            self.mapview_is_active = False
+        print "mapview is active: ", self.mapview_is_active
+
+
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
     app=ObjectProperty()
+    tabpanel=ObjectProperty()
     startmenu = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(MindmapApp, self).__init__(**kwargs)
         #bt_open_last_map
         #self.startmenu.add_widget()
-
 
 
     def load_map(self,filename):
@@ -629,18 +640,20 @@ class MindmapApp(FloatLayout):
     def create_new_map(self,newname):
         self.save_map()
         try:
-            copyfile("new.mm", newname)
+            copyfile("new.mm", newname + ".mm")
             self.load_map(newname)
         except Exception, e:
             Logger.error("couldn't create a new file with the filename " + newname + str(e))
 
     def get_newfilename(self):
+        Logger.info("info... " + self.tabpanel.current_tab.state)
         Popup(title="Enter text here",
               content=TextInput(focus=True),
               size_hint=(0.6, 0.6),
               on_dismiss=self.set_caption).open()
 
     def set_caption(self, popup):
+
         print popup.content.text
 
 
