@@ -377,7 +377,9 @@ class MapView(RelativeLayout):
                         if keycode[1]=="s":
                             self.save_map_to_file()
                 if keycode[1] == 'escape':
-                    keyboard.release()
+                     pass
+                     keyboard.release()
+                     return True
                 elif keycode[1]=="left":
                     self.select_father()
                 elif keycode[1]=="right":
@@ -607,6 +609,22 @@ class MapView(RelativeLayout):
             self.mapview_is_active = False
         print "mapview is active: ", self.mapview_is_active
 
+    def generate_hashmap(self):
+        #create a new xml-map
+        Logger.info("...generate Hashmap..")
+        hashroot = etree.Element('map')
+        hashfirstnode = etree.SubElement(hashroot,'node')
+        #search the self.rootnode or self.firstnode for hashtags
+        for xmlnode in self.rootnode.getiterator("node"):#xpath('//node'):
+            #print xmlnode.get('TEXT')
+            if '#' in xmlnode.get('TEXT'):
+                nodetext=xmlnode.get('TEXT')
+                begin = nodetext.find('#')
+                end =  nodetext.find(' ',begin)
+                if end==-1:
+                    end=None
+
+                print "found it!" + nodetext + "-----------" +nodetext[begin:end]
 
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()

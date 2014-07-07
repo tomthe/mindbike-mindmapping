@@ -44,6 +44,7 @@ Todo - Features
 		Menu:
 			copy, cut, delete, add buttons
 			add a nice, prebuild Android-like menu
+			or a "spinner" with node operations. opens after long-tap or after a button-tap...
 		start-screen
 			easy entry point especially for first-time users
 			Options:
