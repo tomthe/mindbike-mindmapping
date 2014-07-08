@@ -96,11 +96,17 @@
             TabbedPanelItem:
                 text:'TagMap'
                 on_state:mv.set_mapview_is_active(self.state)
+                Button:
+                    text:'Generate TagMap'
+                    pos:self.pos
+                    size:(300,300)
+                    on_press:mv2.build_map(root.mv.generate_hashmap())
                 ScrollView:
                     MapView:
                         size_hint_y:None
                         size_hint_x:None
                         id:mv2
+
         BoxLayout:
             orientation:'horizontal'
             size_hint_y:None
@@ -120,3 +126,20 @@
             Button:
                 text:"TagMap"
                 on_press:mv2.build_map(root.mv.generate_hashmap())
+
+<MapDropDown>:
+    Button:
+        text:"Delete Node"
+        on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
+    Button:
+        text:"Load"
+        on_press:root.show_load()
+    Button:
+        text:"Save"
+        on_press:root.mv.save_map_to_file(None)
+    Button:
+        text:"Settings"
+        on_press:root.app.open_settings()
+    Button:
+        text:"TagMap"
+        on_press:mv2.build_map(root.mv.generate_hashmap())

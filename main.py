@@ -20,6 +20,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.textinput import TextInput
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.dropdown import DropDown
 from kivy.properties import ListProperty, StringProperty,ObjectProperty, BooleanProperty
 from kivy.uix.popup import Popup
 from kivy.logger import Logger
@@ -613,6 +614,7 @@ class MapView(RelativeLayout):
         else: # if state=='normal' --> not active
             self.mapview_is_active = False
         print "mapview is active: ", self.mapview_is_active
+        #self.app.activeMapView = self
 
     def generate_hashmap(self):
         try:
@@ -662,9 +664,17 @@ class MapView(RelativeLayout):
 
         #now we have a xml-hashmap. next step: display it in a new tab
 
+class MapDropDown(DropDown):
+    app = None
+
+    def delete_selected_node(self):
+        self.app.activeMap.delete_selected_node()
+
+
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
     mv2=ObjectProperty()
+    activeMap=mv
     app=ObjectProperty()
     tabpanel=ObjectProperty()
     startmenu = ObjectProperty()

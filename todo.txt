@@ -26,9 +26,9 @@ Todo - Features
 		drag and drop nodes
 		change order of sibblings
 		change mother-node
-	store settings for next-time-use
+	store settings for next-time-use - check
 		what
-			last opened file -check
+			last opened file - check
 	undo, redo, history
 		
 	right- and left-headed nodes
