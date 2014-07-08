@@ -64,6 +64,7 @@
 
 <MindmapApp>:
     mv:mv
+    mv2:mv2
     tabpanel:tabpanel
     startmenu:startmenu
     BoxLayout:
@@ -94,8 +95,12 @@
                         id:mv
             TabbedPanelItem:
                 text:'TagMap'
-                Button:
-                    text:"test"
+                on_state:mv.set_mapview_is_active(self.state)
+                ScrollView:
+                    MapView:
+                        size_hint_y:None
+                        size_hint_x:None
+                        id:mv2
         BoxLayout:
             orientation:'horizontal'
             size_hint_y:None
@@ -113,5 +118,5 @@
                 text:"Settings"
                 on_press:root.app.open_settings()
             Button:
-                text:"Hashmap"
-                on_press:root.mv.generate_hashmap()
+                text:"TagMap"
+                on_press:mv2.build_map(root.mv.generate_hashmap())

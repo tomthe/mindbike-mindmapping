@@ -64,6 +64,10 @@ Todo - Features
 		write RST, convert and save it with html
 	tabbed-panel for more than one open map
 		necessary to show #tag-maps
+		tabbed-panel is implemented - do we need to place the references to the open maps in an array? Then we could open as many maps as someone wants at the same time. would need some refacturing!?
+	search-function
+		like in freeplane: input search-term; select next suitable node... or filter the map to only include the suitable nodes (and parents...and children)
+		
 Bugs
 	tabbedPanel: map in a not-active panel receives keyboard-events and does some unexpected behaviour
 		solve:
