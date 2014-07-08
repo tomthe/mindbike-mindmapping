@@ -263,6 +263,7 @@ class Node(Label):
 
     def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50, father_node=None,i_sibling=0):
         if xmlnode.tag=="node":
+
             #print "fathersendpos.pos, self.ext: (nnerhalb...,", self.fathers_end_pos,self.text, "fathers..."
             self.father_node = father_node
 
@@ -432,7 +433,7 @@ class MapView(RelativeLayout):
             self.firstnode = self.rootnode.find("node")
             self.firstnode.set("FOLDED","False")
             print "build_map..."
-            self.build_map(self.firstnode,0,"")
+            self.build_map(self.firstnode)
         except Exception, e:
             Logger.error("couldnt read map from file: " + str(e))
             print "file doesn't exist!"
@@ -446,16 +447,20 @@ class MapView(RelativeLayout):
         self.add_widget(newnode)
         self.get_selected_node_by_ID().selected = True
 
-    def build_map(self,node,level,outstr):
-        if node.tag=="node":
-            newnode=Node(fathers_end_pos=[20,0])
-            firstnodepos = [0,0]
-            self.height = newnode.create_itself(node,self,firstnodepos)
-            self.selectedNode = newnode
-            self.add_widget(newnode)
-        else:
+    def build_map(self,node):
+        self.clear_widgets()
+        if node.tag!="node":
             print "what?", node.tag
-        return outstr
+            self.rootnode = node
+            self.firstnode = node.find("node")
+            self.firstnode.set("FOLDED","False")
+
+        newnode=Node(fathers_end_pos=[20,0])
+        firstnodepos = [0,0]
+        self.height = newnode.create_itself(self.firstnode,self,firstnodepos)
+        self.selectedNode = newnode
+        self.add_widget(newnode)
+        return ""
 
     def deselect_all(self):
         for node in self.children:
@@ -610,24 +615,56 @@ class MapView(RelativeLayout):
         print "mapview is active: ", self.mapview_is_active
 
     def generate_hashmap(self):
+        try:
+            from re import findall
+            from copy import deepcopy
+        except Exception, e:
+            Logger.error("couldnt import re (regularExpressions)...or copy...  " + e)
+            return None
+
         #create a new xml-map
         Logger.info("...generate Hashmap..")
         hashroot = etree.Element('map')
         hashfirstnode = etree.SubElement(hashroot,'node')
+        hashfirstnode.set("TEXT", "#Hashmap")
         #search the self.rootnode or self.firstnode for hashtags
-        for xmlnode in self.rootnode.getiterator("node"):#xpath('//node'):
+        for xmlnode in self.rootnode.iter("node"):#.getiterator("node"):#xpath('//node'):
             #print xmlnode.get('TEXT')
             if '#' in xmlnode.get('TEXT'):
                 nodetext=xmlnode.get('TEXT')
-                begin = nodetext.find('#')
-                end =  nodetext.find(' ',begin)
-                if end==-1:
-                    end=None
+                #begin = nodetext.find('#')
+                #end_space =  nodetext.find(' ',begin)
+                #if end_space==-1:
+                #    end_space=None
 
-                print "found it!" + nodetext + "-----------" +nodetext[begin:end]
+                #print "found it! " + nodetext + " ----------- " +nodetext[begin:end_space]
+                #regexp = re.compile(r'#[A-Za-z0-9_]+')
+                for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
+                    print "--hashtag: ", hashtag
+                    #find the matching hashnode for every hashtag in this node...
+                    matching_node = hashroot.find(".//node[@TEXT='" + hashtag + "']")
+                    print "match?: ", matching_node
+                    if matching_node!=None:
+                        print "-*- okay:  ", matching_node.get("TEXT")
+
+                    #if there is no matching hashnode jet, create one:
+                    else:
+                        matching_node = etree.SubElement(hashfirstnode,'node')
+                        matching_node.set("TEXT", hashtag)
+
+                    #add the xmlnode to the hashnode
+                    matching_node.append(deepcopy(xmlnode))
+
+                    #hashfirstnode = etree.SubElement(hashroot,'node')
+        print hashfirstnode#, hashfirstnode.tostring()
+        etree.dump(hashroot)
+        return hashroot
+
+        #now we have a xml-hashmap. next step: display it in a new tab
 
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
+    mv2=ObjectProperty()
     app=ObjectProperty()
     tabpanel=ObjectProperty()
     startmenu = ObjectProperty()
