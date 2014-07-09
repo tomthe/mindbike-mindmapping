@@ -1,5 +1,12 @@
 MindBike
 
+Goals
+	create a mindmap application for every device.
+	full compatibility with all my favorite mindmapping applications
+	-->make it possible to work on the same map from my mobile-phone and my desktop-pc
+	Integrate some of my Ideas to make mindmapping even more productive
+	make it extendable
+	make it open-source and get many users and developers
 Management-Stuff
 	Build Packages and upload them to Bitbucket
 		Android http://android.kivy.org/job/3ac06008-0e41-485e-a72f-10c3e4675603
@@ -12,6 +19,7 @@ Management-Stuff
 			complicated, ... Mac needed
 	find testers and contributors (and users)
 		advertise MindBike in suitable forums
+			when is it ready? basic functions already work. hashmap works. GUI is ok... could be better for newcomers
 			Freeplane-forum
 			FreeMind-forum
 			Kivy-User-group
@@ -59,10 +67,12 @@ Todo - Features
 					open load-dialog
 				Open last map 1
 				Open last map 2...
-	support and testing on various platforms
+	support and testing and building on various platforms
 		Android
+			packaging works (sometimes not...); application works...
 		Windows
-		Linux
+			packaging with pyinstaller - problems
+		Linux?
 	support for notes and node-details
 		complicated, because notes and details use html-syntax and I want to keep compatibility with Freemind and Freeplane
 		convert html to reStructuredText(rst), show it with kivy-label
@@ -109,6 +119,10 @@ Ideas
 					move a node w/o children
 			How?
 				history element next to rootxml...
+					problem: Freemind can't handle extra xml-elements.
+						Only solution: save it in an extra file ("original_filename.mmhist")
+							benefit: delete big (but maybe unuseful) history easily
+							keep compatibility with Freemind
 				add a history-node for every action:
 					add: subelement "historyaction"; attribute["action"]=newnode ...subelement node...
 					modify:
@@ -116,6 +130,23 @@ Ideas
 			
 				<history><historyaction action="[newnode|modify|delete|]" parentid="12345465" time="8347534092"...
 		merging of two mindmaps with a common ancestor
+		map-merge - standalone function
+			merge 2 maps to one map. useful if you edit the same file on different locations and want to unify it again
+			nodeX from map1 and nodeY from map2. 
+				search for node with the same id as nodeX in map2...
+					yes/found it:
+						(?check if it has the same "position"?) (if yes --> alright..go on..) (if no --> conflict --> ...decide... keep one(last modified), delete one...
+						compare - did something change?
+							yes --> conflict --> choose which changes to keep (modified later, User-interaction, always "this"map,...) 
+							no --> keep one of the two nodes
+					no/couldn't find a node with the same ID in map2:
+						-->this is a new node --> keep this node and all its children at its position
+							(what if they created nodes with the same text (but different IDs) at both maps?)
+								...not likely...user needs to delete it manually
+			integration into GUI and Workflow:
+				perfekt: automatic checking, synchronization and merging on startup or even on every edit... over direct connection... own servers
+				suggestion1: the user has to copy both files to the same location (renaming... extension necessary...)
+				suggestion2: there are 2 "watchfolders"; same filenames; if one file has changed: start merging
 	#tag-system/getting-things-done-implementation
 		idea
 			add tags to some nodes: "nodetext...blabla #tag"..."nodetext... #priority:high", " nodetext...#priority:low"...
