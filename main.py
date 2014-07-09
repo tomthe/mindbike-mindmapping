@@ -632,6 +632,7 @@ class MapView(RelativeLayout):
         #search the self.rootnode or self.firstnode for hashtags
         for xmlnode in self.rootnode.iter("node"):#.getiterator("node"):#xpath('//node'):
             #print xmlnode.get('TEXT')
+            print "--------------------------------"
             if '#' in xmlnode.get('TEXT'):
                 nodetext=xmlnode.get('TEXT')
                 #begin = nodetext.find('#')
@@ -644,7 +645,7 @@ class MapView(RelativeLayout):
                 for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
                     print "--hashtag: ", hashtag
                     #find the matching hashnode for every hashtag in this node...
-                    matching_node = hashroot.find(".//node[@TEXT='" + hashtag + "']")
+                    matching_node = hashroot.find("./node/node[@TEXT='" + hashtag + "']")
                     print "match?: ", matching_node
                     if matching_node!=None:
                         print "-*- okay:  ", matching_node.get("TEXT")
