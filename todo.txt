@@ -45,6 +45,11 @@ Todo - Features
 			copy, cut, delete, add buttons
 			add a nice, prebuild Android-like menu
 			or a "spinner" with node operations. opens after long-tap or after a button-tap...
+			1 node-spinner and 1 map-spinner instead of the 5 buttons at the bottom
+				map
+					save, discard, open, new, ... settings ... generate tagmap
+				node
+					new child, new sibbling, delete node, cut, copy, paste
 		start-screen
 			easy entry point especially for first-time users
 			Options:
