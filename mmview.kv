@@ -81,7 +81,7 @@
                         text:"Welcome to Mindbike-Mindmapping!"
                     Button:
                         text:"Create a new Map"
-                        on_press:root.get_newfilename()
+                        on_press:root.create_new_map()
                     Button:
                         text:"Load a Map from File"
                         on_press:root.show_load()
@@ -95,7 +95,7 @@
                         id:mv
             TabbedPanelItem:
                 text:'TagMap'
-                on_state:mv.set_mapview_is_active(self.state)
+                on_state:mv2.set_mapview_is_active(self.state)
                 Button:
                     text:'Generate TagMap'
                     pos:self.pos

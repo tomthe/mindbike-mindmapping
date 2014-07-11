@@ -60,6 +60,11 @@ except ImportError:
 
 kivy.require('1.0.7')
 
+
+MIN_NODE_WIDTH = 740
+
+
+
 class NodeTextInput(TextInput):
     node=None
 
@@ -213,13 +218,15 @@ class Node(Label):
     def on_text2(self):
         #print "on_text",unicode(self.text)#,instance,value
         #self.width=self.texture_size[0]
-        #if self.text[0]=="=":
-            #try:
-        #        self.text=str(eval(self.text[1:]))
-            #except:
-        #        pass
-        #        print "eval: ", str(self.text)
-        #        print "evaluieren:  ",str(eval("23*5")),str(eval("23*5"))
+        if self.text[0]=="=":
+            try:
+                Logger.info("eval: " + str(self.text))
+                self.text=str(eval(self.text[1:]))
+            except:
+                Logger.error("eval: " + str(self.text))
+        #Seconds since epoch:
+        modified = str(int(time()*1000))
+        self.xmlnode.set("MODIFIED",modified)
         self.xmlnode.set(u"TEXT",unicode(self.text,))
         #self.rootwidget.rebuild_map()
 
@@ -280,6 +287,8 @@ class Node(Label):
             self.nid = xmlnode.get("ID")
             self.texture_update()
             self.size = self.texture_size
+            if self.width <=MIN_NODE_WIDTH:
+                self.width = MIN_NODE_WIDTH
             self.bby = self.height + self.VERTICAL_MARGIN
             self.pos = pos
             self.i_sibling =i_sibling
@@ -594,6 +603,10 @@ class MapView(RelativeLayout):
         self.delete_node_by_ID(ID)
 
     def save_map_to_file(self,filename=None):
+        #test:
+        test_merge_two_mindmaps()
+        print "bla"
+
         if filename == None:
             filename=self.loaded_map_filename
         try:
@@ -665,6 +678,32 @@ class MapView(RelativeLayout):
 
         #now we have a xml-hashmap. next step: display it in a new tab
 
+def test_merge_two_mindmaps():
+    filenameA = 'mergeA.mm'
+    filenameB = 'mergeB.mm'
+
+    xmla = etree.parse(filenameA)
+    xmlb = etree.parse(filenameB)
+    merge_two_mindmaps(xmla,xmlb)
+
+    print "parsed..."
+    #self.rootnode = self.tree.getroot()
+    #self.firstnode = self.rootnode.find("node")
+
+def merge_two_mindmaps(xmlmapa,xmlmapb):
+    for nodea in xmlmapa.iter('node'):
+        print "........................", nodea.get('TEXT')
+        #print nodea, nodea.get('text'), nodea.get('TEXT')
+        nodeb = xmlmapb.find(".//node[@ID='" + nodea.get('ID') + "']")
+        if nodeb:
+            print "the node is in both maps"
+            if nodeb.get('MODIFIED')==nodea.get('MODIFIED'):
+                print "same same"
+            else:
+                print "oh! modified!",nodea.get('MODIFIED'),nodeb.get('MODIFIED')
+                if int(nodea.get('MODIFIED'))>int(nodeb.get('MODIFIED')):
+                    print "a was later!"
+
 class MapDropDown(DropDown):
     app = None
 
@@ -703,24 +742,24 @@ class MindmapApp(FloatLayout):
         self.dismiss_popup()
         print self.tabpanel
 
-    def create_new_map(self,newname):
+    def create_new_map(self):
         self.save_map()
+        Logger.info("create a new map " + self.tabpanel.current_tab.state)
+        Popup(title="Enter new Filename, click outside to create the File",
+              content=TextInput(focus=True, multiline=False),
+              size_hint=(0.72, 0.30),
+              on_dismiss=self.copy_new_map).open()
+
+    def copy_new_map(self, popup):
+        newname = popup.content.text
+        Logger.info ("Create a new map. Filename: " + newname + newname)
         try:
-            copyfile("new.mm", newname + ".mm")
+            if newname[-3:]!=".mm":
+                newname += ".mm"
+            copyfile("new.mm", newname)
             self.load_map(newname)
         except Exception, e:
             Logger.error("couldn't create a new file with the filename " + newname + str(e))
-
-    def get_newfilename(self):
-        Logger.info("info... " + self.tabpanel.current_tab.state)
-        Popup(title="Enter text here",
-              content=TextInput(focus=True),
-              size_hint=(0.6, 0.6),
-              on_dismiss=self.set_caption).open()
-
-    def set_caption(self, popup):
-
-        print popup.content.text
 
 
 
@@ -749,15 +788,15 @@ class mmviewApp(App):
     def build(self):
         self.config.set('kivy', 'exit_on_escape', '0')
         self.mindmapapp=MindmapApp(app=self)
+        global MIN_NODE_WIDTH
+        MIN_NODE_WIDTH = int(self.config.get("options","min_node_width"))
+        print "MIN_NODE_WIDTH", MIN_NODE_WIDTH
         self.mindmapapp.load_map(self.config.get("files","filename"))
         return self.mindmapapp
 
     def build_config(self, config):
-        config.setdefaults('files', {
-            'filename': 'new.mm',
-            'key1': 'blabla',
-            'key2': '42'
-        })
+        config.setdefaults('files', {'filename': 'new.mm','key1': 'blabla','key2': '42'})
+        config.setdefaults('options', {'min_node_width': '30'})
         config.setdefaults('kivy', {'exit_on_escape': '0'})
 
     def build_settings(self, settings):
@@ -780,10 +819,10 @@ class mmviewApp(App):
       "options": ["value1", "value2", "another value"] },
 
     { "type": "numeric",
-      "title": "My second key",
-      "desc": "Description of my second key",
-      "section": "files",
-      "key": "key2" }
+      "title": "Minimum Node width",
+      "desc": "Minimum Node width",
+      "section": "options",
+      "key": "min_node_width" }
 ]
 """
         settings.add_json_panel('Mindbike Preferences',

@@ -23,7 +23,7 @@ Management-Stuff
 			Freeplane-forum
 			FreeMind-forum
 			Kivy-User-group
-		
+			http://www.mind-mapping.org
 Todo - Features
 	rearrange map
 		how
@@ -41,9 +41,15 @@ Todo - Features
 		
 	right- and left-headed nodes
 		for me not necessary... for others it may be
+	display and insert images
+	display and insert Icons
+	
 	polish UI
 		behaviour
 		Map and notes:
+			better usability on touch devices!
+				how?
+					...better access for the main node-actions (create, edit...)
 			nicer colors, nicer buttons, white background?! configurable
 			remove connection-line to root-node
 			folding, editing, selecting, adding nodes:
@@ -146,7 +152,9 @@ Ideas
 			integration into GUI and Workflow:
 				perfekt: automatic checking, synchronization and merging on startup or even on every edit... over direct connection... own servers
 				suggestion1: the user has to copy both files to the same location (renaming... extension necessary...)
-				suggestion2: there are 2 "watchfolders"; same filenames; if one file has changed: start merging
+				suggestion2: there are 2 "watchfolders"; same filenames; if one file has changed: start merging (or merge on button-press)
+					I prefer suggestion2, because its easy to setup (with dropbox, for example).
+					there should be a small backup/fallback solution: copy
 	#tag-system/getting-things-done-implementation
 		idea
 			add tags to some nodes: "nodetext...blabla #tag"..."nodetext... #priority:high", " nodetext...#priority:low"...
@@ -157,6 +165,7 @@ Ideas
 						"nodetext...#priority:low"
 					#high
 						....
+	integration of a
 	node-functions
 		evaluate node-text via python eval() to do calculations
 	special nodes
