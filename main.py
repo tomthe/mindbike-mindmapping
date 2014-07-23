@@ -719,6 +719,8 @@ def merge_two_mindmaps(xmlmapa,xmlmapb,xmlmaproot=None):
 
 
 def test_mergeNodes():
+
+    from copy import deepcopy
     filenameA = 'mergeA.mm'
     filenameB = 'mergeB.mm'
     filenameold = 'mergeold.mm'
@@ -740,11 +742,12 @@ def test_mergeNodes():
     #self.firstnode = self.rootnode.find("node")
 
 
-def mergeNodes(nodea,nodeb,nodenew=None,nodeold=None):
+def mergeNodes(nodea,nodeb,nodenewnodeold=None):
     print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')
     bool_found_the_same_node_id = False
     i_a=0
     i_b=0
+    nodenew = copy.deepcopy(nodea)
     for nodebchild in nodeb.findall("node"):
         i_b+=1
         print "...........................", nodebchild.get('TEXT')
@@ -756,19 +759,21 @@ def mergeNodes(nodea,nodeb,nodenew=None,nodeold=None):
                 print "found the same child in a and b.  ",
                 if nodeachild.get('MODIFIED')==nodebchild.get('MODIFIED'):
                     print " ..they have the same modify-dates... :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED')
-                    nodenew.insert(i_b,nodebchild)
+                    #nodenew.insert(i_b,nodebchild) #not necessary, just keep it
                 else:
                     print " ..they have different modify-dates.. :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED'),
                     if int(nodeachild.get('MODIFIED'))> nodebchild.get('MODIFIED'):
                         print ";  nodea was later. "
-                        nodenew.insert(i_a,nodeachild)
+                        #nodenew.insert(i_a,nodeachild)
                     else:
                         print ";  nodeb was later. "
+                        nodenew.remove(nodeachild) #........nee, das geht nicht.... dann mach ich ja die kinder weg...
                         nodenew.insert(i_b,nodebchild)
 
         if bool_found_the_same_node_id ==False:
             #couldnt find nodea in nodeb:
             print "     coulnt find nodeb in a      "
+
 
 
 
