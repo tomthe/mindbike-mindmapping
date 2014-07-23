@@ -33,29 +33,29 @@ from shutil import copyfile
 
 try:
   from lxml import etree
-  print("running with lxml.etree")
+  Logger.info("running with lxml.etree")
 except ImportError:
   try:
     # Python 2.5
     import xml.etree.cElementTree as etree
-    print("running with cElementTree on Python 2.5+")
+    Logger.info("running with cElementTree on Python 2.5+")
   except ImportError:
     try:
       # Python 2.5
       import xml.etree.ElementTree as etree
-      print("running with ElementTree on Python 2.5+")
+      Logger.info("running with ElementTree on Python 2.5+")
     except ImportError:
       try:
         # normal cElementTree install
         import cElementTree as etree
-        print("running with cElementTree")
+        Logger.info("running with cElementTree")
       except ImportError:
         try:
           # normal ElementTree install
           import elementtree.ElementTree as etree
-          print("running with ElementTree")
+          Logger.info("running with ElementTree")
         except ImportError:
-          print("Failed to import ElementTree from any known place")
+          Logger.Error("Failed to import ElementTree from any known place")
 
 
 kivy.require('1.0.7')
@@ -605,6 +605,8 @@ class MapView(RelativeLayout):
     def save_map_to_file(self,filename=None):
         #test:
         test_merge_two_mindmaps()
+        print "------------------------------------------------------------"
+        test_mergeNodes()
         print "bla"
 
         if filename == None:
@@ -681,21 +683,27 @@ class MapView(RelativeLayout):
 def test_merge_two_mindmaps():
     filenameA = 'mergeA.mm'
     filenameB = 'mergeB.mm'
+    filenameold = 'mergeold.mm'
 
     xmla = etree.parse(filenameA)
     xmlb = etree.parse(filenameB)
-    merge_two_mindmaps(xmla,xmlb)
+    xmlold = etree.parse(filenameold)
+
+    merge_two_mindmaps(xmla,xmlb,xmlold)
 
     print "parsed..."
     #self.rootnode = self.tree.getroot()
     #self.firstnode = self.rootnode.find("node")
 
-def merge_two_mindmaps(xmlmapa,xmlmapb):
+def merge_two_mindmaps(xmlmapa,xmlmapb,xmlmaproot=None):
+    xmlmapnew=xmlmapb
+
     for nodea in xmlmapa.iter('node'):
         print "........................", nodea.get('TEXT')
         #print nodea, nodea.get('text'), nodea.get('TEXT')
         nodeb = xmlmapb.find(".//node[@ID='" + nodea.get('ID') + "']")
-        if nodeb:
+        #print "nodeA-ID:", nodea.get("ID")," , nodeb.id: ",nodeb.get("ID")
+        if nodeb!= None:
             print "the node is in both maps"
             if nodeb.get('MODIFIED')==nodea.get('MODIFIED'):
                 print "same same"
@@ -703,6 +711,66 @@ def merge_two_mindmaps(xmlmapa,xmlmapb):
                 print "oh! modified!",nodea.get('MODIFIED'),nodeb.get('MODIFIED')
                 if int(nodea.get('MODIFIED'))>int(nodeb.get('MODIFIED')):
                     print "a was later!"
+        else:
+            print "nodea existiert in map-b leider nicht"
+            #add nodea to xmlmapnew
+            # we need the location!
+            # with lxml this would be: ..node..getpath() #-->map/node/node/node[3]
+
+
+def test_mergeNodes():
+    filenameA = 'mergeA.mm'
+    filenameB = 'mergeB.mm'
+    filenameold = 'mergeold.mm'
+
+    xmla = etree.parse(filenameA)
+    xmlb = etree.parse(filenameB)
+    xmlold = etree.parse(filenameold)
+
+    nodea = xmla.find("node")
+    nodeb = xmlb.find("node")
+    nodeold = xmlold.find("node")
+
+    nodenew = etree.Element
+
+    mergeNodes(nodea,nodeb,nodeold)
+
+    print "parsed..."
+    #self.rootnode = self.tree.getroot()
+    #self.firstnode = self.rootnode.find("node")
+
+
+def mergeNodes(nodea,nodeb,nodenew=None,nodeold=None):
+    print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')
+    bool_found_the_same_node_id = False
+    i_a=0
+    i_b=0
+    for nodebchild in nodeb.findall("node"):
+        i_b+=1
+        print "...........................", nodebchild.get('TEXT')
+        bool_found_the_same_node_id = False
+        for nodeachild in nodea.findall("node"):
+            i_a+=1
+            if nodeachild.get("ID")==nodebchild.get("ID"):
+                bool_found_the_same_node_id = True
+                print "found the same child in a and b.  ",
+                if nodeachild.get('MODIFIED')==nodebchild.get('MODIFIED'):
+                    print " ..they have the same modify-dates... :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED')
+                    nodenew.insert(i_b,nodebchild)
+                else:
+                    print " ..they have different modify-dates.. :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED'),
+                    if int(nodeachild.get('MODIFIED'))> nodebchild.get('MODIFIED'):
+                        print ";  nodea was later. "
+                        nodenew.insert(i_a,nodeachild)
+                    else:
+                        print ";  nodeb was later. "
+                        nodenew.insert(i_b,nodebchild)
+
+        if bool_found_the_same_node_id ==False:
+            #couldnt find nodea in nodeb:
+            print "     coulnt find nodeb in a      "
+
+
 
 class MapDropDown(DropDown):
     app = None
