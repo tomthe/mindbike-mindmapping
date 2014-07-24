@@ -84,28 +84,29 @@ Todo - Features
 		complicated, because notes and details use html-syntax and I want to keep compatibility with Freemind and Freeplane
 		convert html to reStructuredText(rst), show it with kivy-label
 		write RST, convert and save it with html
-	tabbed-panel for more than one open map
+	tabbed-panel for more than one open map [ Done! ]
 		necessary to show #tag-maps
 		tabbed-panel is implemented - do we need to place the references to the open maps in an array? Then we could open as many maps as someone wants at the same time. would need some refacturing!?
 	search-function
 		like in freeplane: input search-term; select next suitable node... or filter the map to only include the suitable nodes (and parents...and children)
 		
 Bugs
-	tabbedPanel: map in a not-active panel receives keyboard-events and does some unexpected behaviour
-		solve:
-			realise when the tabpanel is active/inactive and de/activate the keyboard-processing...
-			but how to sense
+	hashmap
+		navigation to father fails
 	input-behavior
 		'enter' on selected node
-			now: adds sibling node at beginning...
 			should: add sibling node under selected
-				xml-->add node at specific position
+				xml-->add node at specific position... runs into problems if there are other specific nodes than "node"
 				ok, but with some exceptions
 solved Bugs
 	textinput is too big
 		I don't understand why?! - solved: size_hint must be (None,None)
 	multiline-nodes
 		crash layout
+	tabbedPanel: map in a not-active panel receives keyboard-events and does some unexpected behaviour
+		solve:
+			realise when the tabpanel is active/inactive and de/activate the keyboard-processing...
+			but how to sense
 Ideas
 	version-control
 		safe the history of every node-action in a history-node
