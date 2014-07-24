@@ -28,7 +28,11 @@ from kivy.core.window import Window
 from random import randint
 from time import time
 from shutil import copyfile
-
+try:
+    from copy import deepcopy
+    Logger.info("successfully imported deepcopy")
+except ImportError,e:
+    Logger.Error("couldn't load 'deepcopy'" + e)
 #from readmm import stringize
 
 try:
@@ -604,9 +608,9 @@ class MapView(RelativeLayout):
 
     def save_map_to_file(self,filename=None):
         #test:
-        test_merge_two_mindmaps()
+        self.test_merge_two_mindmaps()
         print "------------------------------------------------------------"
-        test_mergeNodes()
+        self.test_mergeNodes()
         print "bla"
 
         if filename == None:
@@ -614,6 +618,17 @@ class MapView(RelativeLayout):
         try:
             self.tree.write(filename)
             Logger.info("map saved to: "+ filename)
+        except Exception, e:
+            Logger.error("couldnt save map to " + filename + "   " + str(e))
+
+    def save_map(self,node,filename):
+        if filename == None:
+            filename=self.loaded_map_filename
+        if node==None:
+            node = self.tree.getroot()
+        try:
+            etree.ElementTree(node).write(filename)
+            Logger.info("node ... saved to: "+ filename)
         except Exception, e:
             Logger.error("couldnt save map to " + filename + "   " + str(e))
 
@@ -680,101 +695,130 @@ class MapView(RelativeLayout):
 
         #now we have a xml-hashmap. next step: display it in a new tab
 
-def test_merge_two_mindmaps():
-    filenameA = 'mergeA.mm'
-    filenameB = 'mergeB.mm'
-    filenameold = 'mergeold.mm'
+    def test_merge_two_mindmaps(self):
+        filenameA = 'mergeA.mm'
+        filenameB = 'mergeB.mm'
+        filenameold = 'mergeold.mm'
 
-    xmla = etree.parse(filenameA)
-    xmlb = etree.parse(filenameB)
-    xmlold = etree.parse(filenameold)
+        xmla = etree.parse(filenameA)
+        xmlb = etree.parse(filenameB)
+        xmlold = etree.parse(filenameold)
 
-    merge_two_mindmaps(xmla,xmlb,xmlold)
+        self.merge_two_mindmaps(xmla,xmlb,xmlold)
 
-    print "parsed..."
-    #self.rootnode = self.tree.getroot()
-    #self.firstnode = self.rootnode.find("node")
+        print "parsed..."
+        #self.rootnode = self.tree.getroot()
+        #self.firstnode = self.rootnode.find("node")
 
-def merge_two_mindmaps(xmlmapa,xmlmapb,xmlmaproot=None):
-    xmlmapnew=xmlmapb
+    def merge_two_mindmaps(self,xmlmapa,xmlmapb,xmlmaproot=None):
+        xmlmapnew=xmlmapb
 
-    for nodea in xmlmapa.iter('node'):
-        print "........................", nodea.get('TEXT')
-        #print nodea, nodea.get('text'), nodea.get('TEXT')
-        nodeb = xmlmapb.find(".//node[@ID='" + nodea.get('ID') + "']")
-        #print "nodeA-ID:", nodea.get("ID")," , nodeb.id: ",nodeb.get("ID")
-        if nodeb!= None:
-            print "the node is in both maps"
-            if nodeb.get('MODIFIED')==nodea.get('MODIFIED'):
-                print "same same"
+        for nodea in xmlmapa.iter('node'):
+            print "........................", nodea.get('TEXT')
+            #print nodea, nodea.get('text'), nodea.get('TEXT')
+            nodeb = xmlmapb.find(".//node[@ID='" + nodea.get('ID') + "']")
+            #print "nodeA-ID:", nodea.get("ID")," , nodeb.id: ",nodeb.get("ID")
+            if nodeb!= None:
+                print "the node is in both maps"
+                if nodeb.get('MODIFIED')==nodea.get('MODIFIED'):
+                    print "same same"
+                else:
+                    print "oh! modified!",nodea.get('MODIFIED'),nodeb.get('MODIFIED')
+                    if int(nodea.get('MODIFIED'))>int(nodeb.get('MODIFIED')):
+                        print "a was later!"
             else:
-                print "oh! modified!",nodea.get('MODIFIED'),nodeb.get('MODIFIED')
-                if int(nodea.get('MODIFIED'))>int(nodeb.get('MODIFIED')):
-                    print "a was later!"
-        else:
-            print "nodea existiert in map-b leider nicht"
-            #add nodea to xmlmapnew
-            # we need the location!
-            # with lxml this would be: ..node..getpath() #-->map/node/node/node[3]
+                print "nodea existiert in map-b leider nicht"
+                #add nodea to xmlmapnew
+                # we need the location!
+                # with lxml this would be: ..node..getpath() #-->map/node/node/node[3]
 
 
-def test_mergeNodes():
+    def test_mergeNodes(self):
 
-    from copy import deepcopy
-    filenameA = 'mergeA.mm'
-    filenameB = 'mergeB.mm'
-    filenameold = 'mergeold.mm'
+        print "44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444"
+        filenameA = 'mergeA.mm'
+        filenameB = 'mergeB.mm'
+        filenameold = 'mergeold.mm'
 
-    xmla = etree.parse(filenameA)
-    xmlb = etree.parse(filenameB)
-    xmlold = etree.parse(filenameold)
+        xmla = etree.parse(filenameA)
+        xmlb = etree.parse(filenameB)
+        xmlold = etree.parse(filenameold)
 
-    nodea = xmla.find("node")
-    nodeb = xmlb.find("node")
-    nodeold = xmlold.find("node")
+        nodea = xmla.find("node")
+        nodeb = xmlb.find("node")
+        nodeold = xmlold.find("node")
 
-    nodenew = etree.Element
-
-    mergeNodes(nodea,nodeb,nodeold)
-
-    print "parsed..."
-    #self.rootnode = self.tree.getroot()
-    #self.firstnode = self.rootnode.find("node")
+        nodenew = deepcopy(nodea)
+        #nodenew = etree.Element("node")
+        print("...h1", etree.tostring(nodea))#, pretty_print=True))
+        print("...h2", etree.tostring(nodeb))
 
 
-def mergeNodes(nodea,nodeb,nodenewnodeold=None):
-    print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')
-    bool_found_the_same_node_id = False
-    i_a=0
-    i_b=0
-    nodenew = copy.deepcopy(nodea)
-    for nodebchild in nodeb.findall("node"):
-        i_b+=1
-        print "...........................", nodebchild.get('TEXT')
+        self.mergeNodes(nodea,nodeb,nodenew)
+        print("...h3", etree.tostring(nodea))#, pretty_print=True))
+        print("...h4", nodea,nodenew)
+        print("...h5", etree.tostring(nodenew))
+        print "parsed..."
+
+        self.save_map(nodenew,"mergednew.mm")
+        #self.rootnode = self.tree.getroot()
+        #self.firstnode = self.rootnode.find("node")
+
+
+    def mergeNodes(self,nodea,nodeb,nodenew,nodeold=None):
+        print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')
         bool_found_the_same_node_id = False
+        i_a=-1
+        i_b=-1
+
+        #remove all childnodes from nodenew to insert them later again (no need to remove them later....
+        for nodenewchild in nodenew.findall("node"):
+            nodenew.remove(nodenewchild)
+
+        for nodebchild in nodeb.findall("node"):
+            i_b+=1
+            print "...........................", nodebchild.get('TEXT')
+            bool_found_the_same_node_id = False
+            for nodeachild in nodea.findall("node"):
+                i_a+=1
+                if nodeachild.get("ID")==nodebchild.get("ID"):
+                    bool_found_the_same_node_id = True
+                    print "found the same child in a and b.  ",
+                    if nodeachild.get('MODIFIED')==nodebchild.get('MODIFIED'):
+                        print " ..they have the same modify-dates... :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED')
+                        newchildnode = deepcopy(nodebchild)
+                        nodenew.insert(i_b,newchildnode) #not necessary, just keep it
+                    else:
+                        print " ..they have different modify-dates.. :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED'), int(nodeachild.get('MODIFIED')), int(nodebchild.get('MODIFIED')),
+                        if int(nodeachild.get('MODIFIED'))> int(nodebchild.get('MODIFIED')):
+                            print ";  nodea was later. "
+                            newchildnode = deepcopy(nodeachild)
+                            nodenew.insert(i_a,newchildnode)
+                        else:
+                            print ";  nodeb was later. "
+                            newchildnode = deepcopy(nodebchild)
+                            nodenew.insert(i_b,newchildnode)
+
+                    self.mergeNodes(nodeachild,nodebchild,newchildnode)
+
+            if bool_found_the_same_node_id==False:
+                #couldnt find a nodeachild with the same ID:
+                print "     coulnt find nodeb in a      "
+                nodenew.insert(i_b,nodebchild)
+
+        #insert all childnodes that exist only in nodea:
+        i_a=-1
         for nodeachild in nodea.findall("node"):
             i_a+=1
-            if nodeachild.get("ID")==nodebchild.get("ID"):
-                bool_found_the_same_node_id = True
-                print "found the same child in a and b.  ",
-                if nodeachild.get('MODIFIED')==nodebchild.get('MODIFIED'):
-                    print " ..they have the same modify-dates... :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED')
-                    #nodenew.insert(i_b,nodebchild) #not necessary, just keep it
-                else:
-                    print " ..they have different modify-dates.. :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED'),
-                    if int(nodeachild.get('MODIFIED'))> nodebchild.get('MODIFIED'):
-                        print ";  nodea was later. "
-                        #nodenew.insert(i_a,nodeachild)
-                    else:
-                        print ";  nodeb was later. "
-                        nodenew.remove(nodeachild) #........nee, das geht nicht.... dann mach ich ja die kinder weg...
-                        nodenew.insert(i_b,nodebchild)
+            bool_found_the_same_node_id = False
+            for nodebchild in nodeb.findall("node"):
+                if nodeachild.get("ID")==nodebchild.get("ID"):
+                    bool_found_the_same_node_id = True
 
-        if bool_found_the_same_node_id ==False:
-            #couldnt find nodea in nodeb:
-            print "     coulnt find nodeb in a      "
-
-
+            if bool_found_the_same_node_id==False:
+                #couldnt find a nodebchild with the same ID:
+                print "     coulnt find nodea in b      ", nodeachild.get("TEXT")
+                nodenew.insert(i_a,nodeachild)
 
 
 class MapDropDown(DropDown):
