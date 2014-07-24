@@ -38,7 +38,8 @@ Todo - Features
 		what
 			last opened file - check
 	undo, redo, history
-		
+		* safe the whole history....version-control-like [ not implemented ... maybe someday ]
+		* safe a few complete maps in a stack [ implemented! ]
 	right- and left-headed nodes
 		for me not necessary... for others it may be
 	display and insert images
@@ -136,12 +137,14 @@ Ideas
 			
 				<history><historyaction action="[newnode|modify|delete|]" parentid="12345465" time="8347534092"...
 		merging of two mindmaps with a common ancestor
-		map-merge - standalone function
+		map-merge - standalone function  [ almost done ]
 			merge 2 maps to one map. useful if you edit the same file on different locations and want to unify it again
+			how to move from node to next node?
 			nodeX from map1 and nodeY from map2. 
 				search for node with the same id as nodeX in map2...
 					yes/found it:
 						(?check if it has the same "position"?) (if yes --> alright..go on..) (if no --> conflict --> ...decide... keep one(last modified), delete one...
+						
 						compare - did something change?
 							yes --> conflict --> choose which changes to keep (modified later, User-interaction, always "this"map,...) 
 							no --> keep one of the two nodes
@@ -153,8 +156,13 @@ Ideas
 				perfekt: automatic checking, synchronization and merging on startup or even on every edit... over direct connection... own servers
 				suggestion1: the user has to copy both files to the same location (renaming... extension necessary...)
 				suggestion2: there are 2 "watchfolders"; same filenames; if one file has changed: start merging (or merge on button-press)
-					I prefer suggestion2, because its easy to setup (with dropbox, for example).
+					I prefer suggestion2, because it is easy to set up (with dropbox, for example).
 					there should be a small backup/fallback solution: copy
+					exact workflow and gui and integration:
+						"add a location"-Button: add a path to a directory, where a same-named mindmap is stored
+							save this in the config (btw, save also a list of recent used maps (and their co-locations) in the config)
+						"merge"-Button and -Function:
+							loads the two (or more??) Files and
 	#tag-system/getting-things-done-implementation
 		idea
 			add tags to some nodes: "nodetext...blabla #tag"..."nodetext... #priority:high", " nodetext...#priority:low"...

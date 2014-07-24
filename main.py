@@ -206,7 +206,7 @@ class Node(Label):
             self.unfold()
         self.selected = True
         #self.rootwidget.selectedNode = self
-        self.rootwidget.rebuild_map()
+        self.rootwidget.rebuild_map(do_for_undo=False)
 
     def fold(self):
         #print "fold:  ", self.text
@@ -269,7 +269,7 @@ class Node(Label):
 
         print position, "position"
         self.xmlnode.insert(position,newxmlnode)
-        self.rootwidget.rebuild_map()
+        self.rootwidget.rebuild_map(do_for_undo=False)
 
         return ID
 
@@ -362,6 +362,8 @@ class MapView(RelativeLayout):
     selectedNodeID="0"
     textinput_is_active = False
     mapview_is_active = False
+    undostack = []
+    undopos = -1
 
 
     def __init__(self, **kwargs):
@@ -437,6 +439,37 @@ class MapView(RelativeLayout):
             # the system.
         return False
 
+    def do_for_undo(self):
+        print "do...", self.undopos, len(self.undostack), self.undostack
+        if self.undopos < -1:
+            for i in xrange(self.undopos,-1,1):
+                self.undostack.pop()
+            self.undopos = -1
+
+        self.undostack.append(deepcopy(self.firstnode))
+        if len(self.undostack)>11:
+            self.undostack.popleft()
+        print "do...", self.undopos, len(self.undostack), self.undostack
+
+    def undo(self):
+        print "undo...", self.undopos, len(self.undostack), self.undostack
+        if -(self.undopos) < len(self.undostack):
+            self.undopos -= 1
+            self.firstnode = self.undostack[self.undopos]
+            self.rebuild_map(do_for_undo=False)
+        else:
+            Logger.info("No more undo possible")
+        print "undo...", self.undopos, len(self.undostack), self.undostack
+
+    def redo(self):
+        print "redo...", self.undopos, len(self.undostack), self.undostack
+        if self.undopos < -1:
+            self.undopos += 1
+            self.firstnode =self.undostack[self.undopos]
+            self.rebuild_map(do_for_undo=False)
+        print "redo...", self.undopos, len(self.undostack), self.undostack
+
+
     def read_map_from_file(self,filename):
         try:
             self.loaded_map_filename = filename
@@ -452,7 +485,9 @@ class MapView(RelativeLayout):
             Logger.error("couldnt read map from file: " + str(e))
             print "file doesn't exist!"
 
-    def rebuild_map(self):
+    def rebuild_map(self,do_for_undo=True):
+        if do_for_undo:
+            self.do_for_undo()
         self.clear_widgets()
         #self.textinput_is_active = False
         firstnodepos = [0,0]
@@ -551,7 +586,7 @@ class MapView(RelativeLayout):
             try:
                 if thisnode.folded==True:
                     thisnode.unfold()
-                    self.rebuild_map()
+                    self.rebuild_map(do_for_undo=False)
                     thisnode=self.get_selected_node()
                     thisnode.child_nodes[-1].selected=True
                     thisnode.selected=False
@@ -590,9 +625,10 @@ class MapView(RelativeLayout):
             thisnode = self.get_selected_node()
             thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
             thisnode.father_node.selected = True
+            self.selectedNodeID = thisnode.father_node.nid
         except Exception, e:
             Logger.error("Node-deletion failed.   " + str(e))
-        self.rebuild_map()
+        self.rebuild_map(do_for_undo=True)
 
     def delete_node_by_ID(self,ID):
         # delete a node from the xml-tree, by selecting its ID-string ("ID_249823749")
@@ -600,7 +636,7 @@ class MapView(RelativeLayout):
         self.get_parent_node_by_ID(ID).remove(self.tree.find("//node[@ID='" + ID + "']"))
         #self.get_selected_node_by_ID(ID).father_node.remove(self.xmlnode)
         #self.tree.remove(self.tree.find("//node[@ID='" + ID + "']"))
-        self.rebuild_map()
+        self.rebuild_map(do_for_undo=True)
 
     def delete_node_by_node(self,node):
         ID=node.xmlnode.get("ID")

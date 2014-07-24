@@ -121,6 +121,12 @@
                 text:"Save"
                 on_press:root.mv.save_map_to_file(None)
             Button:
+                text:"Undo"
+                on_press:root.mv.undo()
+            Button:
+                text:"Redo"
+                on_press:root.mv.redo()
+            Button:
                 text:"Settings"
                 on_press:root.app.open_settings()
             Button:
