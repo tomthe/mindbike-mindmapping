@@ -85,6 +85,9 @@
                     Button:
                         text:"Load a Map from File"
                         on_press:root.show_load()
+                    Button:
+                        text:"Settings"
+                        on_press:root.app.open_settings()
             TabbedPanelItem:
                 text:'Map'
                 on_state:mv.set_mapview_is_active(self.state)
@@ -126,9 +129,6 @@
             Button:
                 text:"Redo"
                 on_press:root.mv.redo()
-            Button:
-                text:"Settings"
-                on_press:root.app.open_settings()
             Button:
                 text:"TagMap"
                 on_press:mv2.build_map(root.mv.generate_hashmap())
