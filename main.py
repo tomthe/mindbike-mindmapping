@@ -497,18 +497,21 @@ class MapView(RelativeLayout):
         self.get_selected_node_by_ID().selected = True
 
     def build_map(self,node):
-        self.clear_widgets()
-        if node.tag!="node":
-            print "what?", node.tag
-            self.rootnode = node
-            self.firstnode = node.find("node")
-            self.firstnode.set("FOLDED","False")
+        try:
+            self.clear_widgets()
+            if node.tag!="node":
+                print "what?", node.tag
+                self.rootnode = node
+                self.firstnode = node.find("node")
+                self.firstnode.set("FOLDED","False")
 
-        newnode=Node(fathers_end_pos=[20,0])
-        firstnodepos = [0,0]
-        self.height = newnode.create_itself(self.firstnode,self,firstnodepos)
-        self.selectedNode = newnode
-        self.add_widget(newnode)
+            newnode=Node(fathers_end_pos=[20,0])
+            firstnodepos = [0,0]
+            self.height = newnode.create_itself(self.firstnode,self,firstnodepos)
+            self.selectedNode = newnode
+            self.add_widget(newnode)
+        except Exception, e:
+            Logger.error("couldn't build map...   " + str(e))
         return ""
 
     def deselect_all(self):
@@ -685,51 +688,54 @@ class MapView(RelativeLayout):
     def generate_hashmap(self):
         try:
             from re import findall
-            from copy import deepcopy
         except Exception, e:
-            Logger.error("couldnt import re (regularExpressions)...or copy...  " + e)
+            Logger.error("couldnt import re (regularExpressions)...or copy...  " + str(e))
+            return None
+        try:
+            #create a new xml-map
+            Logger.info("...generate Hashmap..")
+            hashroot = etree.Element('map')
+            hashfirstnode = etree.SubElement(hashroot,'node')
+            hashfirstnode.set("TEXT", "#Hashmap")
+            #search the self.rootnode or self.firstnode for hashtags
+            for xmlnode in self.rootnode.iter("node"):#.getiterator("node"):#xpath('//node'):
+                #print xmlnode.get('TEXT')
+                print "--------------------------------"
+                if '#' in xmlnode.get('TEXT'):
+                    nodetext=xmlnode.get('TEXT')
+                    #begin = nodetext.find('#')
+                    #end_space =  nodetext.find(' ',begin)
+                    #if end_space==-1:
+                    #    end_space=None
+
+                    #print "found it! " + nodetext + " ----------- " +nodetext[begin:end_space]
+                    #regexp = re.compile(r'#[A-Za-z0-9_]+')
+                    for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
+                        print "--hashtag: ", hashtag
+                        #find the matching hashnode for every hashtag in this node...
+                        matching_node = hashroot.find("./node/node[@TEXT='" + hashtag + "']")
+                        print "match?: ", matching_node
+                        if matching_node!=None:
+                            print "-*- okay:  ", matching_node.get("TEXT")
+
+                        #if there is no matching hashnode jet, create one:
+                        else:
+                            matching_node = etree.SubElement(hashfirstnode,'node')
+                            matching_node.set("TEXT", hashtag)
+
+                        #add the xmlnode to the hashnode
+                        matching_node.append(deepcopy(xmlnode))
+
+                        #hashfirstnode = etree.SubElement(hashroot,'node')
+            print hashfirstnode#, hashfirstnode.tostring()
+            etree.dump(hashroot)
+            return hashroot
+        #now we have a xml-hashmap. next step: display it in a new tab
+
+        except Exception, e:
+            Logger.error("couldn't create the hashmap!  " + str(e))
             return None
 
-        #create a new xml-map
-        Logger.info("...generate Hashmap..")
-        hashroot = etree.Element('map')
-        hashfirstnode = etree.SubElement(hashroot,'node')
-        hashfirstnode.set("TEXT", "#Hashmap")
-        #search the self.rootnode or self.firstnode for hashtags
-        for xmlnode in self.rootnode.iter("node"):#.getiterator("node"):#xpath('//node'):
-            #print xmlnode.get('TEXT')
-            print "--------------------------------"
-            if '#' in xmlnode.get('TEXT'):
-                nodetext=xmlnode.get('TEXT')
-                #begin = nodetext.find('#')
-                #end_space =  nodetext.find(' ',begin)
-                #if end_space==-1:
-                #    end_space=None
-
-                #print "found it! " + nodetext + " ----------- " +nodetext[begin:end_space]
-                #regexp = re.compile(r'#[A-Za-z0-9_]+')
-                for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
-                    print "--hashtag: ", hashtag
-                    #find the matching hashnode for every hashtag in this node...
-                    matching_node = hashroot.find("./node/node[@TEXT='" + hashtag + "']")
-                    print "match?: ", matching_node
-                    if matching_node!=None:
-                        print "-*- okay:  ", matching_node.get("TEXT")
-
-                    #if there is no matching hashnode jet, create one:
-                    else:
-                        matching_node = etree.SubElement(hashfirstnode,'node')
-                        matching_node.set("TEXT", hashtag)
-
-                    #add the xmlnode to the hashnode
-                    matching_node.append(deepcopy(xmlnode))
-
-                    #hashfirstnode = etree.SubElement(hashroot,'node')
-        print hashfirstnode#, hashfirstnode.tostring()
-        etree.dump(hashroot)
-        return hashroot
-
-        #now we have a xml-hashmap. next step: display it in a new tab
 
     def test_merge_two_mindmaps(self):
         filenameA = 'mergeA.mm'
