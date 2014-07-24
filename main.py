@@ -647,7 +647,7 @@ class MapView(RelativeLayout):
 
     def save_map_to_file(self,filename=None):
         #test:
-        self.test_merge_two_mindmaps()
+        #self.test_merge_two_mindmaps()
         print "------------------------------------------------------------"
         self.test_mergeNodes()
         print "bla"
@@ -802,13 +802,44 @@ class MapView(RelativeLayout):
         print("...h5", etree.tostring(nodenew))
         print "parsed..."
 
-        self.save_map(nodenew,"mergednew.mm")
+        mapNewElement = etree.Element("map")
+        mapNewElement.append(nodenew)
+        self.save_map(mapNewElement,"mergednew.mm")
         #self.rootnode = self.tree.getroot()
         #self.firstnode = self.rootnode.find("node")
 
+    def mergeActualMapWithRemoteLocation(self):
+        #try:
+            from os.path import basename, join
+            self.save_map_to_file()
+            self.save_map_to_file(self.loaded_map_filename+ ".pre_merge.mm")
+
+            filenameA = self.config.get("files","filename")
+            filenameB = join(self.config.get("files","remotedir") , basename(self.config.get("files","filename")))
+            Logger.info("merging.......       " + filenameA + "   ;   " + filenameB)
+
+            xmla = etree.parse(filenameA)
+            xmlb = etree.parse(filenameB)
+
+            nodea = xmla.find("node")
+            nodeb = xmlb.find("node")
+            nodenew = deepcopy(nodea)
+
+            self.mergeNodes(nodea,nodeb,nodenew)
+
+
+            mapNewElement = etree.Element("map")
+            mapNewElement.append(nodenew)
+            self.save_map(mapNewElement, filenameA)
+            self.save_map(mapNewElement, filenameA + ".old.mm")
+            self.save_map(mapNewElement, filenameB)
+            self.save_map(mapNewElement, filenameB + ".old.mm")
+            self.read_map_from_file(filenameA)
+        #except Exception, e:
+        #    Logger.error("couldn't finish the merging-process!  " + str(e))
 
     def mergeNodes(self,nodea,nodeb,nodenew,nodeold=None):
-        print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')
+        #print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')
         bool_found_the_same_node_id = False
         i_a=-1
         i_b=-1
@@ -819,25 +850,25 @@ class MapView(RelativeLayout):
 
         for nodebchild in nodeb.findall("node"):
             i_b+=1
-            print "...........................", nodebchild.get('TEXT')
+            #print "...........................", nodebchild.get('TEXT')
             bool_found_the_same_node_id = False
             for nodeachild in nodea.findall("node"):
                 i_a+=1
                 if nodeachild.get("ID")==nodebchild.get("ID"):
                     bool_found_the_same_node_id = True
-                    print "found the same child in a and b.  ",
+                    #print "found the same child in a and b.  ",
                     if nodeachild.get('MODIFIED')==nodebchild.get('MODIFIED'):
-                        print " ..they have the same modify-dates... :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED')
+                        #print " ..they have the same modify-dates... :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED')
                         newchildnode = deepcopy(nodebchild)
                         nodenew.insert(i_b,newchildnode) #not necessary, just keep it
                     else:
                         print " ..they have different modify-dates.. :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED'), int(nodeachild.get('MODIFIED')), int(nodebchild.get('MODIFIED')),
                         if int(nodeachild.get('MODIFIED'))> int(nodebchild.get('MODIFIED')):
-                            print ";  nodea was later. "
+                            #print ";  nodea was later. "
                             newchildnode = deepcopy(nodeachild)
                             nodenew.insert(i_a,newchildnode)
                         else:
-                            print ";  nodeb was later. "
+                            #print ";  nodeb was later. "
                             newchildnode = deepcopy(nodebchild)
                             nodenew.insert(i_b,newchildnode)
 
@@ -845,7 +876,7 @@ class MapView(RelativeLayout):
 
             if bool_found_the_same_node_id==False:
                 #couldnt find a nodeachild with the same ID:
-                print "     coulnt find nodeb in a      "
+                print "     coulnt find nodeb in a      ", nodebchild.get('TEXT')
                 nodenew.insert(i_b,nodebchild)
 
         #insert all childnodes that exist only in nodea:
@@ -880,12 +911,15 @@ class MindmapApp(FloatLayout):
 
     def __init__(self, **kwargs):
         super(MindmapApp, self).__init__(**kwargs)
+        self.mv.app = self.app
         #bt_open_last_map
         #self.startmenu.add_widget()
 
 
     def load_map(self,filename):
         try:
+            self.mv.config=self.app.config
+            self.mv2.config=self.app.config
             print "close map"
             self.mv.close_map()
             print "open map from file: ", filename
@@ -954,7 +988,7 @@ class mmviewApp(App):
         return self.mindmapapp
 
     def build_config(self, config):
-        config.setdefaults('files', {'filename': 'new.mm','key1': 'blabla','key2': '42'})
+        config.setdefaults('files', {'filename': 'new.mm','key1': 'blabla','key2': '42','remotedir':'./remote'})
         config.setdefaults('options', {'min_node_width': '30'})
         config.setdefaults('kivy', {'exit_on_escape': '0'})
 
@@ -969,6 +1003,12 @@ class mmviewApp(App):
       "desc": "The default loaded map",
       "section": "files",
       "key": "filename" },
+
+    { "type": "string",
+      "title": "Remotedir",
+      "desc": "Remote folder for map-merging",
+      "section": "files",
+      "key": "remotedir" },
 
     { "type": "options",
       "title": "My first key",

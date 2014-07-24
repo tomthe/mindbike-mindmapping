@@ -88,6 +88,9 @@
                     Button:
                         text:"Settings"
                         on_press:root.app.open_settings()
+                    Button:
+                        text:"Merge with remote map"
+                        on_press:root.mv.mergeActualMapWithRemoteLocation()
             TabbedPanelItem:
                 text:'Map'
                 on_state:mv.set_mapview_is_active(self.state)
@@ -99,17 +102,17 @@
             TabbedPanelItem:
                 text:'TagMap'
                 on_state:mv2.set_mapview_is_active(self.state)
-                Button:
-                    text:'Generate TagMap'
-                    pos:self.pos
-                    size:(300,300)
-                    on_press:mv2.build_map(root.mv.generate_hashmap())
                 ScrollView:
                     MapView:
                         size_hint_y:None
                         size_hint_x:None
                         id:mv2
 
+                        Button:
+                            text:'Generate TagMap'
+                            pos:self.pos
+                            size:(300,300)
+                            on_press:mv2.build_map(root.mv.generate_hashmap())
         BoxLayout:
             orientation:'horizontal'
             size_hint_y:None
