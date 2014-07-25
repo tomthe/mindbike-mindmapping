@@ -649,7 +649,7 @@ class MapView(RelativeLayout):
         #test:
         #self.test_merge_two_mindmaps()
         print "------------------------------------------------------------"
-        self.test_mergeNodes()
+        #self.test_mergeNodes()
         print "bla"
 
         if filename == None:
@@ -700,8 +700,8 @@ class MapView(RelativeLayout):
             #search the self.rootnode or self.firstnode for hashtags
             for xmlnode in self.rootnode.iter("node"):#.getiterator("node"):#xpath('//node'):
                 #print xmlnode.get('TEXT')
-                print "--------------------------------"
                 if '#' in xmlnode.get('TEXT'):
+                    print "--------------------------------"
                     nodetext=xmlnode.get('TEXT')
                     #begin = nodetext.find('#')
                     #end_space =  nodetext.find(' ',begin)
@@ -710,25 +710,48 @@ class MapView(RelativeLayout):
 
                     #print "found it! " + nodetext + " ----------- " +nodetext[begin:end_space]
                     #regexp = re.compile(r'#[A-Za-z0-9_]+')
-                    for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
-                        print "--hashtag: ", hashtag
-                        #find the matching hashnode for every hashtag in this node...
-                        matching_node = hashroot.find("./node/node[@TEXT='" + hashtag + "']")
-                        print "match?: ", matching_node
-                        if matching_node!=None:
-                            print "-*- okay:  ", matching_node.get("TEXT")
+                    #for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
 
+                    for hashtag in findall("(#[A-Za-z0-9_]*)(:[A-Za-z0-9_]*)?", nodetext):
+                        print "--hashtag: ", hashtag, len(hashtag),nodetext
+
+                        #find the matching hashnode for every hashtag in this node...
+                        firstmatching_node = hashroot.find("./node/node[@TEXT='" + hashtag[0] + "']")
+                        #print "match?: ", matching_node
+                        if firstmatching_node!=None:
+                            #print "-*- okay:  ", matching_node.get("TEXT")
+                            pass
                         #if there is no matching hashnode jet, create one:
                         else:
-                            matching_node = etree.SubElement(hashfirstnode,'node')
-                            matching_node.set("TEXT", hashtag)
+                            firstmatching_node = etree.SubElement(hashfirstnode,'node')
+                            firstmatching_node.set("TEXT", hashtag[0])
+                            firstmatching_node.set("ID", "ID_"+ str(randint(1000000000,10000000000)))
 
-                        #add the xmlnode to the hashnode
-                        matching_node.append(deepcopy(xmlnode))
+                        if hashtag[1]!='':
+                            #a subhashtag!
+                            secondmatching_node = firstmatching_node.find("./node[@TEXT='" + hashtag[0] + hashtag[1] + "']")
 
-                        #hashfirstnode = etree.SubElement(hashroot,'node')
+                            if secondmatching_node ==None:
+                                secondmatching_node = etree.SubElement(firstmatching_node,'node')
+                                secondmatching_node.set("TEXT", hashtag[0] + hashtag[1])
+                                secondmatching_node.set("ID", "ID_"+ str(randint(1000000000,10000000000)))
+
+                            secondmatching_node.append(deepcopy(xmlnode))
+                        else:
+
+                           # for hashtagdouble in findall("#([A-Za-z0-9_])*:([A-Za-z0-9_])*", nodetext):
+                           #     print "h:h:   ", hashtagdouble
+                           #
+                           #     if double_point_is_there ==True:
+                           #         matching_node = hashroot.find("./node/node[@TEXT='" + hashtag + "']/node[@TEXT='" + hashlayer2 + "']")
+
+
+                            #add the xmlnode to the hashnode
+                            firstmatching_node.append(deepcopy(xmlnode))
+
+                                 #hashfirstnode = etree.SubElement(hashroot,'node')
             print hashfirstnode#, hashfirstnode.tostring()
-            etree.dump(hashroot)
+            #etree.dump(hashroot)
             return hashroot
         #now we have a xml-hashmap. next step: display it in a new tab
 
