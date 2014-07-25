@@ -832,13 +832,25 @@ class MapView(RelativeLayout):
         #self.firstnode = self.rootnode.find("node")
 
     def mergeActualMapWithRemoteLocation(self):
-        #try:
-            from os.path import basename, join
+        try:
+            from os.path import basename, join, isfile
             self.save_map_to_file()
             self.save_map_to_file(self.loaded_map_filename+ ".pre_merge.mm")
 
             filenameA = self.config.get("files","filename")
             filenameB = join(self.config.get("files","remotedir") , basename(self.config.get("files","filename")))
+            if isfile(filenameA) == False:
+                Logger.error("No File Loaded!?!!" + filenameA)
+                popup = Popup(title='No Map loaded!?', content=Label(text=filenameA + '  is invalid. try to load or create a Map'), size_hint=(0.6,0.3))
+                popup.open()
+                return 0
+            elif  isfile(filenameB) == False:
+                Logger.error("")
+                popup = Popup(title='No remote Map!', content=Label(text=filenameB + '  is invalid. right path for remote location under Settings->Files?'), size_hint=(0.6,0.3))
+                popup.open()
+                return 0
+
+
             Logger.info("merging.......       " + filenameA + "   ;   " + filenameB)
 
             xmla = etree.parse(filenameA)
@@ -858,8 +870,8 @@ class MapView(RelativeLayout):
             self.save_map(mapNewElement, filenameB)
             self.save_map(mapNewElement, filenameB + ".old.mm")
             self.read_map_from_file(filenameA)
-        #except Exception, e:
-        #    Logger.error("couldn't finish the merging-process!  " + str(e))
+        except Exception, e:
+            Logger.error("couldn't finish the merging-process!  " + str(e))
 
     def mergeNodes(self,nodea,nodeb,nodenew,nodeold=None):
         #print "...........................................", nodea.get('TEXT')#, nodeb.get('TEXT')

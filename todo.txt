@@ -164,7 +164,7 @@ Ideas
 							save this in the config (btw, save also a list of recent used maps (and their co-locations) in the config)
 						"merge"-Button and -Function:
 							loads the two (or more??) Files and
-	#tag-system/getting-things-done-implementation
+	#tag-system/getting-things-done-implementation [ Done!]
 		idea
 			add tags to some nodes: "nodetext...blabla #tag"..."nodetext... #priority:high", " nodetext...#priority:low"...
 			derive a new map from those tags:
@@ -174,9 +174,14 @@ Ideas
 						"nodetext...#priority:low"
 					#high
 						....
+		issues:
+			no sorting is implemented... would be useful
 	integration of a
 	node-functions
 		evaluate node-text via python eval() to do calculations
+	"scroll-nodes"
+		for nodes with a lot of children. And for a better overview.
+		store all children of a node in a vertical scroll-view
 	special nodes
 	Plug-In-/addon-infrastructure
 	Python-IDE
