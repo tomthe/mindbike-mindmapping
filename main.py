@@ -65,7 +65,8 @@ except ImportError:
 kivy.require('1.0.7')
 
 
-MIN_NODE_WIDTH = 740
+MIN_NODE_WIDTH = 30
+MAX_NODE_WIDTH = 400
 
 
 
@@ -129,7 +130,8 @@ class Node(Label):
     #childnodes = ListProperty([])
     nodetextlabel = ObjectProperty()
     xmlnode = None
-    bgcolor = ListProperty([.25,0.25,0.25])
+    bgcolor = ListProperty([1,1,1])
+    color = ListProperty([0,0.03,0.01,1])#[0,0.2,1.0,1] #
     #posright = AliasProperty(get_posright, set_posright, bind=('pos', 'width'))
     fathers_end_pos=[0,33]
     fathers_width=20
@@ -141,13 +143,13 @@ class Node(Label):
     def on_selected(self,instance,value):
         #self.rootwidget.deselect_all()
         if value:
-            self.bgcolor = [0.3,0.1,0.1]
+            self.bgcolor = [0.80,0.90,0.90]
             self.rootwidget.selectedNodeID=self.xmlnode.get("ID")
             self.rootwidget.selectedNode=self
             #print self.pos, self.parent.size,self.parent.parent.size, self.parent.parent.scroll_x,self.parent.parent.scroll_y
             self.get_optimal_scroll_pos()
         else:
-            self.bgcolor = [0.25,0.25,0.25]
+            self.bgcolor = [1,1,1]
 
     def get_optimal_scroll_pos(self):
         #vertical:
@@ -278,7 +280,6 @@ class Node(Label):
 
             #print "fathersendpos.pos, self.ext: (nnerhalb...,", self.fathers_end_pos,self.text, "fathers..."
             self.father_node = father_node
-
             self.child_nodes = []
             self.xmlnode = xmlnode
             self.rootwidget = rootwidget
@@ -286,13 +287,20 @@ class Node(Label):
             self.fathers_width = fathers_width
             self.text = xmlnode.get("TEXT","NO_TEXT")
             if self.text == "":
-               self.text = "_"
+                self.text = "_"
 
             self.nid = xmlnode.get("ID")
             self.texture_update()
             self.size = self.texture_size
+            if self.width >= MAX_NODE_WIDTH:
+                self.text_size = (MAX_NODE_WIDTH,None)
+                self.texture_update()
+                self.size = self.texture_size
             if self.width <=MIN_NODE_WIDTH:
                 self.width = MIN_NODE_WIDTH
+            #if self.width >=MAX_NODE_WIDTH:
+            #    self.width = MAX_NODE_WIDTH
+
             self.bby = self.height + self.VERTICAL_MARGIN
             self.pos = pos
             self.i_sibling =i_sibling
@@ -317,7 +325,7 @@ class Node(Label):
                         rootwidget.add_widget(newnode)
                         #print "self.pos, self.ext: (nnerhalb...,",self.pos,self.text
                         # newnode.canvas.
-                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children)
+                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children)#,color=self.color)
 
                         #self.childnodes.append(newnode)
                         childpos[1]  += childboxy
@@ -364,6 +372,7 @@ class MapView(RelativeLayout):
     mapview_is_active = False
     undostack = []
     undopos = -1
+    bgcolor = ListProperty([1,1.0,1,0.8])
 
 
     def __init__(self, **kwargs):
@@ -394,9 +403,9 @@ class MapView(RelativeLayout):
                         if keycode[1]=="s":
                             self.save_map_to_file()
                 if keycode[1] == 'escape':
-                     pass
-                     keyboard.release()
-                     return True
+                    #pass
+                    keyboard.release()
+                    return True
                 elif keycode[1]=="left":
                     self.select_father()
                 elif keycode[1]=="right":
@@ -492,6 +501,7 @@ class MapView(RelativeLayout):
         #self.textinput_is_active = False
         firstnodepos = [0,0]
         newnode=Node()
+        #color = self.config.get('settings','')
         self.height = newnode.create_itself(self.firstnode,self,firstnodepos,fathers_end_pos=[0,self.height/2])
         self.add_widget(newnode)
         self.get_selected_node_by_ID().selected = True
@@ -1017,14 +1027,30 @@ class mmviewApp(App):
         self.config.set('kivy', 'exit_on_escape', '0')
         self.mindmapapp=MindmapApp(app=self)
         global MIN_NODE_WIDTH
+        global MAX_NODE_WIDTH
         MIN_NODE_WIDTH = int(self.config.get("options","min_node_width"))
+        MAX_NODE_WIDTH = int(self.config.get("options","max_node_width"))
         print "MIN_NODE_WIDTH", MIN_NODE_WIDTH
         self.mindmapapp.load_map(self.config.get("files","filename"))
         return self.mindmapapp
 
+    def on_config_change(self, config, section, key, value):
+        global MIN_NODE_WIDTH
+        global MAX_NODE_WIDTH
+        if config is self.config:
+            token = (section, key)
+            if token == ('options', 'min_node_width'):
+                print('Our key1 have been changed to', value)
+                MIN_NODE_WIDTH = int(self.config.get("options","min_node_width"))
+            elif token == ('options', 'max_node_width'):
+                # print('Our key1 have been changed to', value)
+                MAX_NODE_WIDTH = int(self.config.get("options","max_node_width"))
+            elif token == ('section1', 'key2'):
+                print('Our key2 have been changed to', value)
+
     def build_config(self, config):
         config.setdefaults('files', {'filename': 'new.mm','key1': 'blabla','key2': '42','remotedir':'./remote'})
-        config.setdefaults('options', {'min_node_width': '30'})
+        config.setdefaults('options', {'min_node_width': '30','max_node_width': '600'})
         config.setdefaults('kivy', {'exit_on_escape': '0'})
 
     def build_settings(self, settings):
@@ -1056,7 +1082,13 @@ class mmviewApp(App):
       "title": "Minimum Node width",
       "desc": "Minimum Node width",
       "section": "options",
-      "key": "min_node_width" }
+      "key": "min_node_width" },
+
+    { "type": "numeric",
+      "title": "Maximum Node width",
+      "desc": "Maximum Node width",
+      "section": "options",
+      "key": "max_node_width" }
 ]
 """
         settings.add_json_panel('Mindbike Preferences',
