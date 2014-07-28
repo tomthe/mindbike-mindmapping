@@ -17,12 +17,12 @@
         Rectangle:
             pos: self.pos
             size: self.size
+        Color:
+            rgb: [0.3,0.3,0.3,0.4]
         Line:
-            rectangle:self.pos+[self.width +2, self.height +2]#(100,100,30,10)
-            #points: ()
-            #points: zip(self.data.x, self.data.y)
-        #Line:
-           # points: self.fathers_end_pos+ [self.x,self.y]
+            rectangle:self.pos+[self.width +2, self.height +2]
+        Color:
+            rgb: [0,0,0,1]
         Line:
             bezier:[self.fathers_end_pos[0]+self.fathers_width, self.fathers_end_pos[1]] + [self.fathers_end_pos[0] +self.fathers_width + 30, self.fathers_end_pos[1]] + [self.x-30,self.y] + self.pos
     Button:
@@ -40,6 +40,12 @@
 <MapView>:
     id:mav
     password:"toor"
+    canvas.before:
+        Color:
+            rgb: root.bgcolor
+        Rectangle:
+            pos: root.pos
+            size: root.size
 
 <LoadDialog>:
     #size_hint_y:0.5
@@ -95,6 +101,12 @@
                 text:'Map'
                 on_state:mv.set_mapview_is_active(self.state)
                 ScrollView:
+                    canvas.before:
+                        Color:
+                            rgb: [1,1,1]
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
                     MapView:
                         size_hint_y:None
                         size_hint_x:None
