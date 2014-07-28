@@ -6,7 +6,7 @@ MindBike is a Mindmap viewer and editor. It reads and displays Mindmaps in the F
  * Displaying and Editing of Mindmaps
  * Fully compatible with Freemind and Freeplane
    * Mindbike can't display or edit notes, icons, node-details and node-attributes. But it will preserve them, so they don't get lost by opening/saving *.mm-Files
- * Collaborative editing: Mindbike can merge two mindmaps easily. If you have two copies of the same map - one on your desktop and one on your smartphone - you can add nodes on both maps and later merge them. After merging you have all the new nodes of both maps in both maps! (No additional software (like Git) required)
+ * Collaborative editing: Mindbike can merge two mindmaps easily. If you have two copies of the same map - one on your desktop and one on your smartphone - you can add nodes on both maps and merge them later. After merging you have all the new nodes of both maps in both maps! (No additional software (like Git) required)
  * Hashtags. Add #hashtags in your node-text to easily access nodes with similar content. Mindbike will generate a #Hashmap that bundles all the nodes with the same #hashtags. Use #hashtag:subtag to build subgroups. This enables an easy GTD (GettingThingsDone) workflow.
 
 ## Download ##
