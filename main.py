@@ -362,7 +362,6 @@ class Node(Label):
             return 0
 
 
-
 class MapView(RelativeLayout):
     rootnode=None
     firstnode=None
