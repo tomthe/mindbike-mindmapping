@@ -351,7 +351,7 @@ class Node(Label):
                 #print(etree.tostring(self.xmlnode, pretty_print=True))
                 if xmlnode.find("node") !=None:
                     #print " has folded kids", self.text
-                    self.bgcolor = [.4,0.4,0.4]
+                    self.bgcolor = [1,0.97,0.91]
                     self.canvas.ask_update()
             #self.size = [self.nwidth,self.nheight]
 
@@ -360,6 +360,7 @@ class Node(Label):
             return self.bby
         else:
             return 0
+
 
 
 class MapView(RelativeLayout):
