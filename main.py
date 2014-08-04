@@ -995,7 +995,10 @@ class MindmapApp(FloatLayout):
         try:
             if newname[-3:]!=".mm":
                 newname += ".mm"
-            copyfile("new.mm", newname)
+            file = open(newname, 'a')
+            file.write('<map version="1.0.1"><node CREATED="1404831683705" FOLDED="False" ID="ID_239640550" MODIFIED="1404831683705" TEXT="New Mindmap"/></map>')
+            file.close()
+            #copyfile("new.mm", newname)
             self.load_map(newname)
         except Exception, e:
             Logger.error("couldn't create a new file with the filename " + newname + str(e))
