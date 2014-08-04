@@ -68,6 +68,7 @@ kivy.require('1.0.7')
 MIN_NODE_WIDTH = 30
 MAX_NODE_WIDTH = 400
 
+columnhs = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 
 class NodeTextInput(TextInput):
@@ -275,7 +276,7 @@ class Node(Label):
 
         return ID
 
-    def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50, father_node=None,i_sibling=0):
+    def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50, father_node=None,i_sibling=0,level=0):
         if xmlnode.tag=="node":
 
             #print "fathersendpos.pos, self.ext: (nnerhalb...,", self.fathers_end_pos,self.text, "fathers..."
@@ -302,7 +303,8 @@ class Node(Label):
             #    self.width = MAX_NODE_WIDTH
 
             self.bby = self.height + self.VERTICAL_MARGIN
-            self.pos = pos
+            columnhs[level] = columnhs[level] + self.height + self.VERTICAL_MARGIN
+            self.pos = (pos[0], columnhs[level])
             self.i_sibling =i_sibling
             #print i_sibling, self.text
             i_sibling_for_children=0
@@ -325,16 +327,16 @@ class Node(Label):
                         rootwidget.add_widget(newnode)
                         #print "self.pos, self.ext: (nnerhalb...,",self.pos,self.text
                         # newnode.canvas.
-                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children)#,color=self.color)
+                        childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children,level=level+1)#,color=self.color)
 
                         #self.childnodes.append(newnode)
-                        childpos[1]  += childboxy
+                        #childpos[1]  += childboxy
                         self.bby += childboxy
                         self.child_nodes.append(newnode)
                 for childnode in self.child_nodes:
                     childnode.siblings = self.child_nodes
 
-                if has_open_children:
+                if False: #has_open_children:
                     if self.height < self.bby:
                         self.bby -= self.height + self.VERTICAL_MARGIN
                         self.pos[1] += self.bby/2 - self.height/2 #-4
@@ -498,6 +500,8 @@ class MapView(RelativeLayout):
         if do_for_undo:
             self.do_for_undo()
         self.clear_widgets()
+        global columnhs
+        columnhs = [0,0,0,0,0,0,0,0,0,0,0,0,0]
         #self.textinput_is_active = False
         firstnodepos = [0,0]
         newnode=Node()
