@@ -30,6 +30,7 @@
         pos:root.right,root.y
         size:root.font_size,root.height
         on_press:root.fold_unfold()
+        text:"f"
 #    Button:
 #        pos:root.right + root.font_size + 3, root.y
 #        size:root.font_size,root.height
@@ -38,6 +39,7 @@
         pos:root.right + 1*(root.font_size+3),root.y
         size:root.font_size,root.height
         on_press:root.add_child()
+        text:"+"
 <MapView>:
     id:mav
     password:"toor"
@@ -73,6 +75,7 @@
     mv:mv
     mv2:mv2
     tabpanel:tabpanel
+    mappanel:mappanel
     startmenu:startmenu
     BoxLayout:
         orientation:'vertical'
@@ -87,6 +90,9 @@
                     Label:
                         text:"Welcome to Mindbike-Mindmapping!"
                     Button:
+                        text:"Edit Map"
+                        on_press:tabpanel.switch_to(mappanel)
+                    Button:
                         text:"Create a new Map"
                         on_press:root.create_new_map()
                     Button:
@@ -99,6 +105,7 @@
                         text:"Merge with remote map"
                         on_press:root.mv.mergeActualMapWithRemoteLocation()
             TabbedPanelItem:
+                id:mappanel
                 text:'Map'
                 on_state:mv.set_mapview_is_active(self.state)
                 ScrollView:
