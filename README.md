@@ -1,6 +1,6 @@
 # MindBike Mindmapping #
 
-MindBike is a Mindmap viewer and editor. It is still in alpha/beta-state - not ready for production-use. It reads and displays Mindmaps in the Freemind/Freeplane Format (*.mm). Its possible to edit and save the mindmaps in the same format, so they are still compatible with Freemind or Freeplane.
+MindBike is a Mindmap viewer and editor. It is still in alpha/beta-state - not ready for production-use. It reads and displays Mindmaps in the Freemind/Freeplane Format (*.mm). Its possible to edit and save the mindmaps in the same format, so they are still compatible with Freemind or Freeplane. It is written in Python + Kivy and thus runs under Android, iOS, Windows, Linux and MacOS - but the main target ist Android.
 
 ## Features ##
  * Displaying and Editing of Mindmaps
@@ -14,12 +14,29 @@ MindBike is a Mindmap viewer and editor. It is still in alpha/beta-state - not r
 [Download-Section](https://bitbucket.org/tomthe/mindbike-mindmapping/downloads)
 Please note that the builds aren't always up-to-date. For now, I only provide packages for Android, sometimes for Windows.
 
-### Multi-Platform ###
+## Installation ##
+# Android #
+[How to install apk-files on android] (http://pc.answers.com/tablets/how-to-install-third-party-android-apps)
+1. Allow the installation of 3rd-Party Apps (check Settings->Security->"Unknown Sources")
+2. Copy the *.apk-file to your sd-card or internal memory. (tip: use dropbox over wifi)
+3. Navigate to the apk-file and open it.
 
-It's written in Python + Kivy, so it runs under Android, iOS, Windows, Linux and MacOS! So far I can only offer packages for Android. Please help me packaging it for other Platforms.
+# Windows #
+1. Download the zip-file
+2. Unpack into a new directory
+3. Start Mindbike.....exe
 
-### Run the Code ###
+(Note that packaging for Windows is still buggy)
 
-Dependencies:
-* Python 2.7
-* [Kivy 1.8](http://kivy.org/)
+# From source (For Windows, Linux and MacOS), for advanced Users! #
+1. Install [Python 2.7](https://www.python.org/downloads/)
+2. Install [Kivy](http://kivy.org/#download)
+3. Check out the latest code via Mercurial or Git and Bitbucket
+4. Run main.py as explained at [Kivy](http://kivy.org/#download)
+
+### HowTo use MindBike ###
+﻿* Double-tap into a node to edit its content
+* ﻿Tap outside to end editing
+* ﻿press the first of the 2 Buttons next to every node (f) to fold/unfold its children
+* ﻿press the second button (+) to add a child-node
+* ﻿On the desktop you can use your keyboard to navigate from node to node and to edit the nodes
