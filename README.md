@@ -10,12 +10,15 @@ MindBike is a Mindmap viewer and editor. It is still in alpha/beta-state - not r
  * Collaborative editing: Mindbike can merge two mindmaps easily. If you have two copies of the same map - one on your desktop and one on your smartphone - you can add nodes on both maps and merge them later. After merging you have all the new nodes of both maps in both maps! (No additional software (like Git) required)
  * Hashtags. Add #hashtags in your node-text to easily access nodes with similar content. Mindbike will generate a #Hashmap that bundles all the nodes with the same #hashtags. Use #hashtag:subtag to build subgroups. This enables an easy GTD (GettingThingsDone) workflow.
 
-# Installation
 
+![screenshot_01_map.png](https://bitbucket.org/repo/Ee5dqy/images/3641041378-screenshot_01_map.png)
+![screenshot_02_startmenu.png](https://bitbucket.org/repo/Ee5dqy/images/821495443-screenshot_02_startmenu.png)
+
+
+# Installation
 ## Download ##
 [Download-Section](https://bitbucket.org/tomthe/mindbike-mindmapping/downloads)
 Please note that the builds aren't always up-to-date. For now, I only provide packages for Android, sometimes for Windows.
-
 ## Android
 [How to install apk-files on android] (http://pc.answers.com/tablets/how-to-install-third-party-android-apps)
 1. Allow the installation of 3rd-Party Apps (check Settings->Security->"Unknown Sources")
@@ -26,7 +29,6 @@ Please note that the builds aren't always up-to-date. For now, I only provide pa
 1. Download the zip-file
 2. Unpack into a new directory
 3. Start Mindbike.....exe
-
 (Note that packaging for Windows is still buggy)
 
 ## From source (For Windows, Linux and MacOS), for advanced Users! #
