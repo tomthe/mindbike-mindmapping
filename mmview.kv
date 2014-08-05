@@ -11,6 +11,7 @@
     #nodetextlabel:nodetextlabel
     size_hint:None,None
     drag_rectangle: self.x, self.y, self.width, self.height
+    font_size:'19sp'
     canvas.before:
         Color:
             rgb: root.bgcolor
@@ -132,9 +133,9 @@
             Button:
                 text:"Delete Node"
                 on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
-            Button:
-                text:"Load"
-                on_press:root.show_load()
+            #Button:
+            #    text:"Load"
+            #    on_press:root.show_load()
             Button:
                 text:"Save"
                 on_press:root.mv.save_map_to_file(None)
