@@ -1,0 +1,203 @@
+MindBike
+
+Goals
+	create a mindmap application for every device.
+	full compatibility with all my favorite mindmapping applications
+	-->make it possible to work on the same map from my mobile-phone and my desktop-pc
+	Integrate some of my Ideas to make mindmapping even more productive
+	make it extendable
+	make it open-source and get many users and developers
+Management-Stuff
+	Build Packages and upload them to Bitbucket
+		Android http://android.kivy.org/job/3ac06008-0e41-485e-a72f-10c3e4675603
+			building works with xubuntu + buildozer,
+			app works on my phone
+			uploaded to bitbucket - check
+		Windows
+			works, but not to a single file
+		(iOS, MacOS)
+			complicated, ... Mac needed
+	find testers and contributors (and users)
+		advertise MindBike in suitable forums
+			when is it ready? basic functions already work. hashmap works. GUI is ok... could be better for newcomers
+			Freeplane-forum
+			FreeMind-forum
+			Kivy-User-group
+			http://www.mind-mapping.org
+Todo - Features
+	rearrange map
+		how
+			copy node to a clipboard-variable
+			delete node
+			add clipboard-node to another node
+		cut, copy & paste
+		drag and drop nodes
+		change order of sibblings
+		change mother-node
+	store settings for next-time-use - check
+		what
+			last opened file - check
+	undo, redo, history
+		* safe the whole history....version-control-like [ not implemented ... maybe someday ]
+		* safe a few complete maps in a stack [ implemented! ]
+	right- and left-headed nodes
+		for me not necessary... for others it may be
+	display and insert images
+	display and insert Icons
+	
+	polish UI
+		behaviour
+		Map and notes:
+			better usability on touch devices!
+				how?
+					...better access for the main node-actions (create, edit...)
+			nicer colors, nicer buttons, white background?! configurable
+			remove connection-line to root-node
+			folding, editing, selecting, adding nodes:
+				nicer buttons
+				add buttons in the menu
+		Menu:
+			copy, cut, delete, add buttons
+			add a nice, prebuild Android-like menu
+			or a "spinner" with node operations. opens after long-tap or after a button-tap...
+			1 node-spinner and 1 map-spinner instead of the 5 buttons at the bottom
+				map
+					save, discard, open, new, ... settings ... generate tagmap
+				node
+					new child, new sibbling, delete node, cut, copy, paste
+		start-screen
+			easy entry point especially for first-time users
+			Options:
+				Create new Map
+					ask for a $name; copy new.mm to $name.mm and open it
+				Load map from File
+					open load-dialog
+				Open last map 1
+				Open last map 2...
+	support and testing and building on various platforms
+		Android
+			packaging works (sometimes not...); application works...
+		Windows
+			packaging with pyinstaller - problems
+		Linux?
+	support for notes and node-details
+		complicated, because notes and details use html-syntax and I want to keep compatibility with Freemind and Freeplane
+		convert html to reStructuredText(rst), show it with kivy-label
+		write RST, convert and save it with html
+	tabbed-panel for more than one open map [ Done! ]
+		necessary to show #tag-maps
+		tabbed-panel is implemented - do we need to place the references to the open maps in an array? Then we could open as many maps as someone wants at the same time. would need some refacturing!?
+	search-function
+		like in freeplane: input search-term; select next suitable node... or filter the map to only include the suitable nodes (and parents...and children)
+		
+Bugs
+	hashmap
+		navigation to father fails
+	input-behavior
+		'enter' on selected node
+			should: add sibling node under selected
+				xml-->add node at specific position... runs into problems if there are other specific nodes than "node"
+				ok, but with some exceptions
+solved Bugs
+	textinput is too big
+		I don't understand why?! - solved: size_hint must be (None,None)
+	multiline-nodes
+		crash layout
+	tabbedPanel: map in a not-active panel receives keyboard-events and does some unexpected behaviour
+		solve:
+			realise when the tabpanel is active/inactive and de/activate the keyboard-processing...
+			but how to sense
+Ideas
+	version-control
+		safe the history of every node-action in a history-node
+			this makes it possible to undo every action
+			thoughts about the necessary definitions:
+				every possible action should be correctly noted in the history
+				the history should enable Undos and Redos
+				the history should not get to big
+				time and "username" should be saved together with it
+				possible actions and related information and actions:
+					add a new node
+						parentID and newID
+					edit a leaf node
+						ID, old
+					edit a node with children
+					delete a leaf node
+					delete a node with children
+					move a node w/o children
+			How?
+				history element next to rootxml...
+					problem: Freemind can't handle extra xml-elements.
+						Only solution: save it in an extra file ("original_filename.mmhist")
+							benefit: delete big (but maybe unuseful) history easily
+							keep compatibility with Freemind
+				add a history-node for every action:
+					add: subelement "historyaction"; attribute["action"]=newnode ...subelement node...
+					modify:
+			definitions:
+			
+				<history><historyaction action="[newnode|modify|delete|]" parentid="12345465" time="8347534092"...
+		merging of two mindmaps with a common ancestor
+		map-merge - standalone function  [ almost done ]
+			merge 2 maps to one map. useful if you edit the same file on different locations and want to unify it again
+			how to move from node to next node?
+			nodeX from map1 and nodeY from map2. 
+				search for node with the same id as nodeX in map2...
+					yes/found it:
+						(?check if it has the same "position"?) (if yes --> alright..go on..) (if no --> conflict --> ...decide... keep one(last modified), delete one...
+						
+						compare - did something change?
+							yes --> conflict --> choose which changes to keep (modified later, User-interaction, always "this"map,...) 
+							no --> keep one of the two nodes
+					no/couldn't find a node with the same ID in map2:
+						-->this is a new node --> keep this node and all its children at its position
+							(what if they created nodes with the same text (but different IDs) at both maps?)
+								...not likely...user needs to delete it manually
+			integration into GUI and Workflow:
+				perfekt: automatic checking, synchronization and merging on startup or even on every edit... over direct connection... own servers
+				suggestion1: the user has to copy both files to the same location (renaming... extension necessary...)
+				suggestion2: there are 2 "watchfolders"; same filenames; if one file has changed: start merging (or merge on button-press)
+					I prefer suggestion2, because it is easy to set up (with dropbox, for example).
+					there should be a small backup/fallback solution: copy
+					exact workflow and gui and integration:
+						"add a location"-Button: add a path to a directory, where a same-named mindmap is stored
+							save this in the config (btw, save also a list of recent used maps (and their co-locations) in the config)
+						"merge"-Button and -Function:
+							loads the two (or more??) Files and
+	#tag-system/getting-things-done-implementation [ Done!]
+		idea
+			add tags to some nodes: "nodetext...blabla #tag"..."nodetext... #priority:high", " nodetext...#priority:low"...
+			derive a new map from those tags:
+				#tag....
+				#priority
+					#low
+						"nodetext...#priority:low"
+					#high
+						....
+		issues:
+			no sorting is implemented... would be useful
+	integration of a
+	node-functions
+		evaluate node-text via python eval() to do calculations
+	"scroll-nodes"
+		for nodes with a lot of children. And for a better overview.
+		store all children of a node in a vertical scroll-view
+	special nodes
+	Plug-In-/addon-infrastructure
+	Python-IDE
+	Latex-Editor
+		
+Done
+	support for keyboard-navigation
+	drag screen if node outside of the screen is selected (by keyboard)
+	delete node
+	load and save buttons
+	save changes to file
+	Layout and positioning of nodes
+	vertical scrolling
+	horizontal scrolling 
+	paint connection-lines
+	edit node-text
+	
+	
+	

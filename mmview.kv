@@ -1,0 +1,174 @@
+#:kivy 1.0
+#:import join os.path.join
+
+# MindBike Mindmapping - Mindmap viewer and editor for mobile devices and desktop platforms
+# Copyright (C) 2014 Tom Theile
+# This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+<Node>:
+    #nodetextlabel:nodetextlabel
+    size_hint:None,None
+    drag_rectangle: self.x, self.y, self.width, self.height
+    font_size:'16sp'
+    canvas.before:
+        Color:
+            rgb: root.bgcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgb: [0.3,0.3,0.3,0.4]
+        Line:
+            rectangle:self.pos+[self.width +2, self.height +2]
+        Color:
+            rgb: [0,0,0,1]
+        Line:
+            bezier:[self.fathers_end_pos[0]+self.fathers_width, self.fathers_end_pos[1]] + [self.fathers_end_pos[0] +self.fathers_width + 30, self.fathers_end_pos[1]] + [self.x-30,self.y] + self.pos
+    Button:
+        pos:root.right,root.y
+        size:root.font_size,root.height
+        on_press:root.fold_unfold()
+        text:"f"
+#    Button:
+#        pos:root.right + root.font_size + 3, root.y
+#        size:root.font_size,root.height
+#        on_press:root.edit()
+    Button:
+        pos:root.right + 1*(root.font_size+3),root.y
+        size:root.font_size,root.height
+        on_press:root.add_child()
+        text:"+"
+<MapView>:
+    id:mav
+    password:"toor"
+    canvas.before:
+        Color:
+            rgb: root.bgcolor
+        Rectangle:
+            pos: root.pos
+            size: root.size
+
+<LoadDialog>:
+    #size_hint_y:0.5
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+        BoxLayout:
+            size_hint_y: None
+            height: '39sp'
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+                #on_press:root.dismiss(force=True)
+            Button:
+                text: "Load"
+                on_release: root.load(join(filechooser.path, filechooser.selection[0]))
+                #on_release: root.dismiss(force=True)
+
+
+<MindmapApp>:
+    mv:mv
+    mv2:mv2
+    tabpanel:tabpanel
+    mappanel:mappanel
+    startmenu:startmenu
+    BoxLayout:
+        orientation:'vertical'
+        TabbedPanel:
+            id:tabpanel
+            do_default_tab:False
+            TabbedPanelItem:
+                text:'Start'
+                BoxLayout:
+                    id:startmenu
+                    orientation:'vertical'
+                    Label:
+                        text:"Welcome to Mindbike-Mindmapping!"
+                    Button:
+                        text:"Edit Map"
+                        on_press:tabpanel.switch_to(mappanel)
+                    Button:
+                        text:"Create a new Map"
+                        on_press:root.create_new_map()
+                    Button:
+                        text:"Load a Map from File"
+                        on_press:root.show_load()
+                    Button:
+                        text:"Settings"
+                        on_press:root.app.open_settings()
+                    Button:
+                        text:"Merge with remote map"
+                        on_press:root.mv.mergeActualMapWithRemoteLocation()
+            TabbedPanelItem:
+                id:mappanel
+                text:'Map'
+                on_state:mv.set_mapview_is_active(self.state)
+                ScrollView:
+                    canvas.before:
+                        Color:
+                            rgb: [1,1,1]
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    MapView:
+                        size_hint_y:None
+                        size_hint_x:None
+                        id:mv
+            TabbedPanelItem:
+                text:'TagMap'
+                on_state:mv2.set_mapview_is_active(self.state)
+                ScrollView:
+                    MapView:
+                        size_hint_y:None
+                        size_hint_x:None
+                        id:mv2
+
+                        Button:
+                            text:'Generate TagMap'
+                            pos:self.pos
+                            size:(300,300)
+                            on_press:mv2.build_map(root.mv.generate_hashmap())
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint_y:None
+            height:'35sp'
+            Button:
+                text:"Delete Node"
+                on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
+            #Button:
+            #    text:"Load"
+            #    on_press:root.show_load()
+            Button:
+                text:"Save"
+                on_press:root.mv.save_map_to_file(None)
+            Button:
+                text:"Undo"
+                on_press:root.mv.undo()
+            Button:
+                text:"Redo"
+                on_press:root.mv.redo()
+            Button:
+                text:"TagMap"
+                on_press:mv2.build_map(root.mv.generate_hashmap())
+
+<MapDropDown>:
+    Button:
+        text:"Delete Node"
+        on_press:root.mv.delete_node_by_node(root.mv.get_selected_node())
+    Button:
+        text:"Load"
+        on_press:root.show_load()
+    Button:
+        text:"Save"
+        on_press:root.mv.save_map_to_file(None)
+    Button:
+        text:"Settings"
+        on_press:root.app.open_settings()
+    Button:
+        text:"TagMap"
+        on_press:mv2.build_map(root.mv.generate_hashmap())
