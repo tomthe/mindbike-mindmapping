@@ -6,7 +6,7 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 
 import kivy
 from kivy.app import App
@@ -909,6 +909,7 @@ class MapDropDown(DropDown):
 class MindmapApp(FloatLayout):
     mv=ObjectProperty()
     mv2=ObjectProperty()
+    mappanel=ObjectProperty()
     activeMap=mv
     app=ObjectProperty()
     tabpanel=ObjectProperty()
@@ -931,6 +932,7 @@ class MindmapApp(FloatLayout):
             self.mv.read_map_from_file(filename)
             Logger.info("map loaded!" +  filename)
             self.app.config.set('files','filename',filename)
+            self.tabpanel.switch_to(self.mappanel)
         except Exception, e:
             Logger.error("oh, loading " + filename + " didn't work...?")
         self.dismiss_popup()
