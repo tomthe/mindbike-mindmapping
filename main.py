@@ -214,16 +214,19 @@ class Node(Label):
         self.create_itself(self.xmlnode,self.rootwidget,[self.x,self.y],unfold=True)
 
     def on_text2(self):
-        if self.text[0]=="=":
-            try:
-                Logger.info("eval: " + str(self.text))
-                self.text=str(eval(self.text[1:]))
-            except Exception, e:
-                Logger.error(str(e) + "; eval: " + str(self.text))
-        #Seconds since epoch:
-        modified = str(int(time()*1000))
-        self.xmlnode.set("MODIFIED",modified)
-        self.xmlnode.set(u"TEXT",unicode(self.text,))
+        try:
+            if self.text[0]=="=":
+                try:
+                    Logger.info("eval: " + str(self.text))
+                    self.text=str(eval(self.text[1:]))
+                except Exception, e:
+                    Logger.error(str(e) + "; eval: " + str(self.text))
+            #Seconds since epoch:
+            modified = str(int(time()*1000))
+            self.xmlnode.set("MODIFIED",modified)
+            self.xmlnode.set(u"TEXT",unicode(self.text,))
+        except Exception, e:
+            Logger.error("on_text2-no text?")
         #self.rootwidget.rebuild_map()
 
     def add_sibling(self):
@@ -428,7 +431,7 @@ class MapView(RelativeLayout):
 
         self.undostack.append(deepcopy(self.firstnode))
         if len(self.undostack)>11:
-            self.undostack.popleft()
+            pass#self.undostack.popleft()
         #print "do...", self.undopos, len(self.undostack), self.undostack
 
     def undo(self):
