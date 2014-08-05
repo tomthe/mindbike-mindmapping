@@ -74,7 +74,7 @@ class NodeTextInput(TextInput):
     node=None
 
     def __init__(self,**kwargs):
-        print "node kwargs:", kwargs
+        #print "node kwargs:", kwargs
         self.size_hint = (None,None)
         self.node=kwargs['node']
         self.node.rootwidget.textinput_is_active = True
@@ -84,16 +84,15 @@ class NodeTextInput(TextInput):
     def on_text_validate(self,remove_enter=False):
         if remove_enter:
             self.text = self.text[:-1]
-        print "on_text_validate1-1", self.node.text, "|||",self.text
+        #print "on_text_validate1-1", self.node.text, "|||",self.text
         newtext=self.text
         self.node.text=unicode(newtext,'utf-8')
         self.node.rootwidget.textinput_is_active = False
         #self.node.rootwidget.textinput  = None
         if self.parent:
-            print "888888888888888888888888888888888888 parent vorhanden! parent!"
             self.parent.remove_widget(self)
         else:
-            print "77777777777777777777777777777777777arg kein parent!"
+            Logger.warning("no parent available")
         self.focus=False
         self.node.on_text2()
         self.node.rootwidget.rebuild_map()
@@ -103,12 +102,11 @@ class NodeTextInput(TextInput):
             pass
         else:
             self.on_text_validate()
-            pass
         return super(NodeTextInput, self).on_focus(instance,value)
 
-    def on_enter(self,instance,value):
-        print "enter gedrueckt!!"
-        pass
+    #def on_enter(self,instance,value):
+    #    print "enter gedrueckt!!"
+    #   pass
 
     def on_text(self,instance,value):
         #print "line numbers: ", value.count('\n')
@@ -116,9 +114,9 @@ class NodeTextInput(TextInput):
         self.adjust_input_size()
 
     def adjust_input_size(self):
-        print "line_height:", self.line_height, self.font_size,self.font_name, self.minimum_height, ", (self.t...): ", (2 + self.text.count('\n')) * (self.font_size + 3)
+        #print "line_height:", self.line_height, self.font_size,self.font_name, self.minimum_height, ", (self.t...): ", (2 + self.text.count('\n')) * (self.font_size + 3)
         self.height = max(self.minimum_height, (2 + self.text.count('\n')) * (self.font_size + 3))#(1 + self.text.count('\n')) * 19 + 10
-        print "line_heigh2:", self.line_height, self.font_size,self.font_name, self.height
+        #print "line_heigh2:", self.line_height, self.font_size,self.font_name, self.height
         self.width = 400
 
 class Node(Label):
@@ -168,8 +166,8 @@ class Node(Label):
                 self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
             elif self.x <= left_bound:
                 self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
-        except:
-            pass
+        except Exception, e:
+            Logger.error("get_optimal_scroll_pos..." + str(e))
 
     def set_posright(self,value):
         self.pos= [value[0] - self.width, value[1]]
@@ -181,11 +179,8 @@ class Node(Label):
         self.selected =False
         if self.collide_point(*touch.pos):
             if touch.is_double_tap:
-                print "double!!! ", self.text, self.pos,self.size
                 self.edit()
-            #elif touch.
             else:
-                #self.fold_unfold()
                 self.selected = True
         return super(Node, self).on_touch_down(touch)
 
@@ -201,10 +196,8 @@ class Node(Label):
     def fold_unfold(self):
         #print "fold,unfold"
         if self.folded==False:
-            print "single-fold! ", self.text, self.pos,self.size
             self.fold()
         else:
-            print "single-de-fold!! unfold! ", self.text, self.pos,self.size
             self.unfold()
         self.selected = True
         #self.rootwidget.selectedNode = self
@@ -216,20 +209,17 @@ class Node(Label):
         self.xmlnode.set("FOLDED","True")
 
     def unfold(self):
-        #print "unfold, "
         self.folded = False
         self.xmlnode.set("FOLDED","False")
         self.create_itself(self.xmlnode,self.rootwidget,[self.x,self.y],unfold=True)
 
     def on_text2(self):
-        #print "on_text",unicode(self.text)#,instance,value
-        #self.width=self.texture_size[0]
         if self.text[0]=="=":
             try:
                 Logger.info("eval: " + str(self.text))
                 self.text=str(eval(self.text[1:]))
-            except:
-                Logger.error("eval: " + str(self.text))
+            except Exception, e:
+                Logger.error(str(e) + "; eval: " + str(self.text))
         #Seconds since epoch:
         modified = str(int(time()*1000))
         self.xmlnode.set("MODIFIED",modified)
@@ -238,20 +228,18 @@ class Node(Label):
 
     def add_sibling(self):
         n_siblings = len(self.siblings)
-        print self.siblings
-        print ([x.tag for x in self.father_node.xmlnode])
+        #print ([x.tag for x in self.father_node.xmlnode])
         n_non_node_xmls = len([x.tag for x in self.father_node.xmlnode]) - n_siblings
         n_non_node_xmls_until_now = len([x.tag for x in self.father_node.xmlnode][self.i_sibling-1:]) - [x.tag for x in self.father_node.xmlnode][self.i_sibling-1:].count("node")
-        print "n_siblings:", n_siblings, " not-node-xmls: ", n_non_node_xmls, "; i_sibling: ", self.i_sibling, "; n_non_node_xmls_until_now: ", n_non_node_xmls_until_now
+        #print "n_siblings:", n_siblings, " not-node-xmls: ", n_non_node_xmls, "; i_sibling: ", self.i_sibling, "; n_non_node_xmls_until_now: ", n_non_node_xmls_until_now
         position = len(self.siblings) - self.i_sibling + 1 + n_non_node_xmls_until_now
-        print "p, p2: ", position
+        #print "p, p2: ", position
         self.father_node.add_child(position)
 
     def add_child(self,position=200):
         #einen neuen "node" erstellen
         #<node TEXT="knot1-2" ID="ID_1021949625" CREATED="1400192771540" MODIFIED="1400197616894">
         #TEXT="nimi" ID="ID_1004240095" CREATED="140 062 763 512 6" MODIFIED="1400627638635"
-        print position, "add...                                       ----"
         newxmlnode = etree.Element("node")
         #The Text is empty
         TEXT="_"
@@ -260,7 +248,6 @@ class Node(Label):
         self.nid=ID
         #Seconds since epoch:
         CREATED = str(int(time()*1000))
-
         #set the xml-node-Attributes:
         newxmlnode.set("TEXT",TEXT)
         newxmlnode.set("ID",ID)
@@ -268,11 +255,8 @@ class Node(Label):
         newxmlnode.set("MODIFIED",CREATED)
         newxmlnode.set("SELECTED","TRUE")
         self.xmlnode.set("FOLDED","False")
-
-        print position, "position"
         self.xmlnode.insert(position,newxmlnode)
         self.rootwidget.rebuild_map(do_for_undo=False)
-
         return ID
 
     def create_itself(self,xmlnode,rootwidget,pos,unfold=False,fathers_end_pos=[20,20],fathers_width=50, father_node=None,i_sibling=0):
@@ -309,10 +293,8 @@ class Node(Label):
             childpos=[pos[0]+self.size[0]+70,pos[1]]
             has_open_children = False
             if self.xmlnode.get("SELECTED","False")=="TRUE":
-                print "selected!!!"
                 self.selected=True
                 del self.xmlnode.attrib["SELECTED"]
-
             if xmlnode.get("FOLDED")=="False" or unfold==True:
                 xmlnode.set("FOLDED","False")
                 self.folded=False
@@ -320,10 +302,8 @@ class Node(Label):
                     if nodechild.tag=="node":
                         i_sibling_for_children +=1
                         has_open_children=True
-
                         newnode = Node()
                         rootwidget.add_widget(newnode)
-                        #print "self.pos, self.ext: (nnerhalb...,",self.pos,self.text
                         # newnode.canvas.
                         childboxy = newnode.create_itself(nodechild,rootwidget,childpos,fathers_end_pos= self.pos,fathers_width=self.width, father_node=self,i_sibling=i_sibling_for_children)#,color=self.color)
 
@@ -341,16 +321,12 @@ class Node(Label):
                         if self.bby < self.height:
                             self.pos[1] -= self.bby/2 - self.height/2 #-4
                             self.bby = self.height
-                            print "--------------------------------------ohohohoho",self.text
                     else:
-                        print "-----------------------------------------height"
                         self.bby = self.height
             else:
                 self.folded = True
-                #print "folded: ",self.text,xmlnode.find("node")
-                #print(etree.tostring(self.xmlnode, pretty_print=True))
                 if xmlnode.find("node") !=None:
-                    #print " has folded kids", self.text
+                    #the node has folded kids
                     self.bgcolor = [1,0.97,0.91]
                     self.canvas.ask_update()
             #self.size = [self.nwidth,self.nheight]
@@ -360,8 +336,6 @@ class Node(Label):
             return self.bby
         else:
             return 0
-
-
 
 class MapView(RelativeLayout):
     rootnode=None
@@ -391,11 +365,9 @@ class MapView(RelativeLayout):
         #self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        #print('The key', keycode, 'have been pressed')
-        #print(' - text is %r' % text)
-        #print(' - modifiers are %r' % modifiers)
+        #print('The key', keycode, 'have been pressed'),(' - text is %r' % text),(' - modifiers are %r' % modifiers)
         if self.mapview_is_active==True:
-            print " textinput_is_active:", self.textinput_is_active, keycode, modifiers
+            #print " textinput_is_active:", self.textinput_is_active, keycode, modifiers
             # Keycode is composed of an integer + a string
             # If we hit escape, release the keyboard
             if self.textinput_is_active == False:
@@ -418,7 +390,6 @@ class MapView(RelativeLayout):
                 elif keycode[1]=="insert":
                     #add a new childnode to the selected node:
                     self.get_selected_node().add_child()
-                    pass
                 elif keycode[1]=="backspace" or keycode[1]=="delete":
                     #delete the selected node
                     #but first, check if there is no nodeInput open:
@@ -441,7 +412,6 @@ class MapView(RelativeLayout):
                         print "shift is pressed..."
                     else:
                         try:
-                            print "enter4",self.children[0].text, self.children
                             self.children[0].on_text_validate(remove_enter=True)
                         except:
                             print "oh... no node.textinput"
@@ -450,7 +420,7 @@ class MapView(RelativeLayout):
         return False
 
     def do_for_undo(self):
-        print "do...", self.undopos, len(self.undostack), self.undostack
+        #print "do...", self.undopos, len(self.undostack), self.undostack
         if self.undopos < -1:
             for i in xrange(self.undopos,-1,1):
                 self.undostack.pop()
@@ -459,17 +429,17 @@ class MapView(RelativeLayout):
         self.undostack.append(deepcopy(self.firstnode))
         if len(self.undostack)>11:
             self.undostack.popleft()
-        print "do...", self.undopos, len(self.undostack), self.undostack
+        #print "do...", self.undopos, len(self.undostack), self.undostack
 
     def undo(self):
-        print "undo...", self.undopos, len(self.undostack), self.undostack
+        #print "undo...", self.undopos, len(self.undostack), self.undostack
         if -(self.undopos) < len(self.undostack):
             self.undopos -= 1
             self.firstnode = self.undostack[self.undopos]
             self.rebuild_map(do_for_undo=False)
         else:
             Logger.info("No more undo possible")
-        print "undo...", self.undopos, len(self.undostack), self.undostack
+        #print "undo...", self.undopos, len(self.undostack), self.undostack
 
     def redo(self):
         print "redo...", self.undopos, len(self.undostack), self.undostack
@@ -477,23 +447,22 @@ class MapView(RelativeLayout):
             self.undopos += 1
             self.firstnode =self.undostack[self.undopos]
             self.rebuild_map(do_for_undo=False)
-        print "redo...", self.undopos, len(self.undostack), self.undostack
+        #print "redo...", self.undopos, len(self.undostack), self.undostack
 
 
     def read_map_from_file(self,filename):
         try:
             self.loaded_map_filename = filename
-            print "parse:", filename
+            Logger.info("parse: ", filename)
             self.tree = etree.parse(filename)
-            print "parsed..."
+            Logger.info("parsed...")
             self.rootnode = self.tree.getroot()
             self.firstnode = self.rootnode.find("node")
             self.firstnode.set("FOLDED","False")
-            print "build_map..."
+            Logger.info( "build_map...")
             self.build_map(self.firstnode)
         except Exception, e:
             Logger.error("couldnt read map from file: " + str(e))
-            print "file doesn't exist!"
 
     def rebuild_map(self,do_for_undo=True):
         if do_for_undo:
@@ -511,7 +480,6 @@ class MapView(RelativeLayout):
         try:
             self.clear_widgets()
             if node.tag!="node":
-                print "what?", node.tag
                 self.rootnode = node
                 self.firstnode = node.find("node")
                 self.firstnode.set("FOLDED","False")
@@ -536,11 +504,9 @@ class MapView(RelativeLayout):
         for node in self.children:
             try:
                 if node.selected==True:
-                    print "get_selected_node: node found"
                     return node
             except:
-                print "get_selected_node: not-node-error"
-                pass
+                Logger.error("get_selected_node: no node found!")
 #        else:
 #            for node in self.children:
 #                if node.selected==self.selectedNodeID:
@@ -558,7 +524,7 @@ class MapView(RelativeLayout):
             for node in self.children:
                 if node.nid==self.selectedNodeID:
                     return node
-        print "upsala, ",node, " --------",self.selectedNodeID
+        #print "upsala, ",node, " --------",self.selectedNodeID
         return self.children[0]
 
     def get_parent_node_by_ID(self,nodeID):
@@ -568,7 +534,6 @@ class MapView(RelativeLayout):
                     #... work on parent/child tuple
                     if child.get("ID")==nodeID:
                         try:
-                            print parent, "  -  "#, parent.ntext
                             return parent
                         except:
                             pass
@@ -582,12 +547,10 @@ class MapView(RelativeLayout):
                     if parent.get("ID")==nodeID:
                         #print "dadadada--uhuhuhu- ", child
                         try:
-                            print child.tag
-                            print child, child.tag=='node'
                             if child.tag=="node":
                                 return child
                         except:
-                            print "nope: ", child
+                            Logger.info("nope: "+ child)
                             pass
         return "0"
 
@@ -605,7 +568,7 @@ class MapView(RelativeLayout):
                     thisnode.child_nodes[-1].selected=True
                     thisnode.selected=False
             except:
-                print "no childs to select!"
+                Logger.info( "no childs to select!")
 
     def select_sibling(self,direction=1):
         thisnode=self.get_selected_node()
@@ -620,7 +583,7 @@ class MapView(RelativeLayout):
                 thisnode.siblings[direction-1].selected=True
                 thisnode.selected=False
             except:
-                print "no siblings to select!"
+                Logger.info( "no siblings to select!")
 
     def select_father(self):
         #deselect actual node:
@@ -635,7 +598,7 @@ class MapView(RelativeLayout):
 
     def delete_selected_node(self):
         try:
-            print "delet this node:",
+            print "delete this node: ",
             thisnode = self.get_selected_node()
             thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
             thisnode.father_node.selected = True
@@ -659,10 +622,8 @@ class MapView(RelativeLayout):
     def save_map_to_file(self,filename=None):
         #test:
         #self.test_merge_two_mindmaps()
-        print "------------------------------------------------------------"
+        Logger.info("about to save the map to file: ")
         #self.test_mergeNodes()
-        print "bla"
-
         if filename == None:
             filename=self.loaded_map_filename
         try:
@@ -688,12 +649,10 @@ class MapView(RelativeLayout):
         self.firstnode=None
 
     def set_mapview_is_active(self, state):
-        print "state: ", state
         if state=='down': # down--> button-down--> active
             self.mapview_is_active = True
         else: # if state=='normal' --> not active
             self.mapview_is_active = False
-        print "mapview is active: ", self.mapview_is_active
         #self.app.activeMapView = self
 
     def generate_hashmap(self):
@@ -712,7 +671,6 @@ class MapView(RelativeLayout):
             for xmlnode in self.rootnode.iter("node"):#.getiterator("node"):#xpath('//node'):
                 #print xmlnode.get('TEXT')
                 if '#' in xmlnode.get('TEXT'):
-                    print "--------------------------------"
                     nodetext=xmlnode.get('TEXT')
                     #begin = nodetext.find('#')
                     #end_space =  nodetext.find(' ',begin)
@@ -724,8 +682,6 @@ class MapView(RelativeLayout):
                     #for hashtag in findall("#[A-Za-z0-9_]+", nodetext):
 
                     for hashtag in findall("(#[A-Za-z0-9_]*)(:[A-Za-z0-9_]*)?", nodetext):
-                        print "--hashtag: ", hashtag, len(hashtag),nodetext
-
                         #find the matching hashnode for every hashtag in this node...
                         firstmatching_node = hashroot.find("./node/node[@TEXT='" + hashtag[0] + "']")
                         #print "match?: ", matching_node
@@ -790,7 +746,6 @@ class MapView(RelativeLayout):
         xmlmapnew=xmlmapb
 
         for nodea in xmlmapa.iter('node'):
-            print "........................", nodea.get('TEXT')
             #print nodea, nodea.get('text'), nodea.get('TEXT')
             nodeb = xmlmapb.find(".//node[@ID='" + nodea.get('ID') + "']")
             #print "nodeA-ID:", nodea.get("ID")," , nodeb.id: ",nodeb.get("ID")
@@ -909,7 +864,7 @@ class MapView(RelativeLayout):
                         newchildnode = deepcopy(nodebchild)
                         nodenew.insert(i_b,newchildnode) #not necessary, just keep it
                     else:
-                        print " ..they have different modify-dates.. :",nodeachild.get('MODIFIED'),nodebchild.get('MODIFIED'), int(nodeachild.get('MODIFIED')), int(nodebchild.get('MODIFIED')),
+                        Logger.info( "merge ..they have different modify-dates.. :" + nodeachild.get('MODIFIED')+nodebchild.get('MODIFIED')+ int(nodeachild.get('MODIFIED'))+ int(nodebchild.get('MODIFIED')))
                         if int(nodeachild.get('MODIFIED'))> int(nodebchild.get('MODIFIED')):
                             #print ";  nodea was later. "
                             newchildnode = deepcopy(nodeachild)
@@ -937,7 +892,7 @@ class MapView(RelativeLayout):
 
             if bool_found_the_same_node_id==False:
                 #couldnt find a nodebchild with the same ID:
-                print "     coulnt find nodea in b      ", nodeachild.get("TEXT")
+                Logger.info( "     coulnt find nodea in b      "+ nodeachild.get("TEXT"))
                 nodenew.insert(i_a,nodeachild)
 
 
@@ -969,16 +924,12 @@ class MindmapApp(FloatLayout):
             self.mv2.config=self.app.config
             print "close map"
             self.mv.close_map()
-            print "open map from file: ", filename
+            Logger.info("open map from file: " + filename)
             self.mv.read_map_from_file(filename)
-            print "map loaded!", filename
+            Logger.info("map loaded!" +  filename)
             self.app.config.set('files','filename',filename)
-        except:
-            print "oh, loading ",filename, " didn't work... try again?"
-            try:
-                self.show_load()
-            except:
-                Logger.error("couldnt show the load-dialog")
+        except Exception, e:
+            Logger.error("oh, loading " + filename + " didn't work...?")
         self.dismiss_popup()
         print self.tabpanel
 
@@ -1045,13 +996,12 @@ class mmviewApp(App):
         if config is self.config:
             token = (section, key)
             if token == ('options', 'min_node_width'):
-                print('Our key1 have been changed to', value)
                 MIN_NODE_WIDTH = int(self.config.get("options","min_node_width"))
             elif token == ('options', 'max_node_width'):
-                # print('Our key1 have been changed to', value)
+                # print('Key1 has been changed to', value)
                 MAX_NODE_WIDTH = int(self.config.get("options","max_node_width"))
             elif token == ('section1', 'key2'):
-                print('Our key2 have been changed to', value)
+                pass
 
     def build_config(self, config):
         config.setdefaults('files', {'filename': 'new.mm','key1': 'blabla','key2': '42','remotedir':'./remote'})
@@ -1101,7 +1051,7 @@ class mmviewApp(App):
 
     def on_pause(self):
       # loosing context on Android, iOS
-      print "pause..."
+      Logger.info("pause...")
       self.mindmapapp.save_map()
       self.config.write()
       return True
