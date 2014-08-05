@@ -820,21 +820,22 @@ class MapView(RelativeLayout):
         xmlb = etree.parse(filenameB)
         xmlold = etree.parse(filenameold)
 
+        Logger.info("parsed...")
+
         nodea = xmla.find("node")
         nodeb = xmlb.find("node")
         nodeold = xmlold.find("node")
 
         nodenew = deepcopy(nodea)
         #nodenew = etree.Element("node")
-        print("...h1", etree.tostring(nodea))#, pretty_print=True))
-        print("...h2", etree.tostring(nodeb))
+        #print("...h1", etree.tostring(nodea))#, pretty_print=True))
+        #print("...h2", etree.tostring(nodeb))
 
 
         self.mergeNodes(nodea,nodeb,nodenew)
-        print("...h3", etree.tostring(nodea))#, pretty_print=True))
-        print("...h4", nodea,nodenew)
-        print("...h5", etree.tostring(nodenew))
-        print "parsed..."
+        #print("...h3", etree.tostring(nodea))#, pretty_print=True))
+        #print("...h4", nodea,nodenew)
+        #print("...h5", etree.tostring(nodenew))
 
         mapNewElement = etree.Element("map")
         mapNewElement.append(nodenew)
@@ -857,7 +858,7 @@ class MapView(RelativeLayout):
                 return 0
             elif  isfile(filenameB) == False:
                 Logger.error("")
-                popup = Popup(title='No remote Map!', content=Label(text=filenameB + '  is invalid. right path for remote location under Settings->Files?'), size_hint=(0.6,0.3))
+                popup = Popup(title='No remote Map!', content=Label(text=filenameB + '  is invalid. Adjust the path for remote location under Settings->Files!', text_size=(self.width/3,None)), size_hint=(0.6,0.3))
                 popup.open()
                 return 0
 
@@ -922,7 +923,7 @@ class MapView(RelativeLayout):
 
             if bool_found_the_same_node_id==False:
                 #couldnt find a nodeachild with the same ID:
-                print "     coulnt find nodeb in a      ", nodebchild.get('TEXT')
+                Logger.info("     coulnt find nodeb in a      "+ nodebchild.get('TEXT'))
                 nodenew.insert(i_b,nodebchild)
 
         #insert all childnodes that exist only in nodea:
