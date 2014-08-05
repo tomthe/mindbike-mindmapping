@@ -1009,7 +1009,7 @@ class mmviewApp(App):
                 pass
 
     def build_config(self, config):
-        config.setdefaults('files', {'filename': 'new.mm','key1': 'blabla','key2': '42','remotedir':'./remote'})
+        config.setdefaults('files', {'filename': 'start.mm','key1': 'blabla','key2': '42','remotedir':'./remote'})
         config.setdefaults('options', {'min_node_width': '30','max_node_width': '600'})
         config.setdefaults('kivy', {'exit_on_escape': '0'})
 
