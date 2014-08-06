@@ -34,17 +34,16 @@ Todo - Features
 		drag and drop nodes
 		change order of sibblings
 		change mother-node
-	store settings for next-time-use - check
+	store settings for next-time-use [ done ]
 		what
-			last opened file - check
+			last opened file [ done ]
 	undo, redo, history
 		* safe the whole history....version-control-like [ not implemented ... maybe someday ]
-		* safe a few complete maps in a stack [ implemented! ]
+		* safe a few complete maps in a stack [ done ]
 	right- and left-headed nodes
-		for me not necessary... for others it may be
+		for me not necessary... for others it may be nice/necessary
 	display and insert images
 	display and insert Icons
-	
 	polish UI
 		behaviour
 		Map and notes:
@@ -84,6 +83,13 @@ Todo - Features
 		complicated, because notes and details use html-syntax and I want to keep compatibility with Freemind and Freeplane
 		convert html to reStructuredText(rst), show it with kivy-label
 		write RST, convert and save it with html
+		alternative: write bbcode
+			convert myself using regex and the kivy-markup-syntax here: http://kivy.org/docs/api-kivy.core.text.markup.html
+			convert mm-html to bbcode: https://bitbucket.org/amigo/html2bbcode/overview
+			display as a kivy-Label
+			convert back to html:  https://github.com/vishnevskiy/bbcodepy   http://code.google.com/p/postmarkup/
+			
+			http://kivy.org/docs/api-kivy.core.text.markup.html
 	tabbed-panel for more than one open map [ Done! ]
 		necessary to show #tag-maps
 		tabbed-panel is implemented - do we need to place the references to the open maps in an array? Then we could open as many maps as someone wants at the same time. would need some refacturing!?
