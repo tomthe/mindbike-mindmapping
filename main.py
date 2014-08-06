@@ -6,7 +6,7 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "0.4.5"
+__version__ = "0.4.6"
 
 import kivy
 from kivy.app import App
@@ -923,12 +923,21 @@ class MindmapApp(FloatLayout):
 
 
     def load_map(self,filename):
+
+        if filename=="start.mm":
+            try:
+                from os import getcwd
+                from os.path import join
+                Logger.info("open START-map from file: " + filename + "; current WD: " + getcwd() + "; joined: " + join(getcwd(),filename))
+                filename = join(getcwd(),filename)
+            except Exception, e:
+                Logger.error("couldnt resolve start.mm, " + str(e))
         try:
+            Logger.info("open map from file: " + filename)
             self.mv.config=self.app.config
             self.mv2.config=self.app.config
             print "close map"
             self.mv.close_map()
-            Logger.info("open map from file: " + filename)
             self.mv.read_map_from_file(filename)
             Logger.info("map loaded!" +  filename)
             self.app.config.set('files','filename',filename)
