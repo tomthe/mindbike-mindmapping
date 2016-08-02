@@ -76,6 +76,7 @@
     mv2:mv2
     tabpanel:tabpanel
     mappanel:mappanel
+    panel_hash_map:panel_hash_map
     startmenu:startmenu
     BoxLayout:
         orientation:'vertical'
@@ -106,7 +107,7 @@
                         on_press:root.mv.mergeActualMapWithRemoteLocation()
             TabbedPanelItem:
                 id:mappanel
-                text:'Map'
+                text:'MindMap'
                 on_state:mv.set_mapview_is_active(self.state)
                 ScrollView:
                     canvas.before:
@@ -120,7 +121,8 @@
                         size_hint_x:None
                         id:mv
             TabbedPanelItem:
-                text:'TagMap'
+                id:panel_hash_map
+                text:'#HashMap'
                 on_state:mv2.set_mapview_is_active(self.state)
                 ScrollView:
                     MapView:
@@ -129,7 +131,7 @@
                         id:mv2
 
                         Button:
-                            text:'Generate TagMap'
+                            text:'Generate #HashMap'
                             pos:self.pos
                             size:(300,300)
                             on_press:mv2.build_map(root.mv.generate_hashmap())
@@ -153,7 +155,7 @@
                 text:"Redo"
                 on_press:root.mv.redo()
             Button:
-                text:"TagMap"
+                text:"#HashMap"
                 on_press:mv2.build_map(root.mv.generate_hashmap())
 
 <MapDropDown>:
