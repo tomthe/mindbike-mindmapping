@@ -1,3 +1,7 @@
+## Deprecated
+
+This app is old and not maintained. I leave this repository here, but you are probably better off if you look for a different app.
+
 # MindBike Mindmapping
 
 MindBike is a Mindmap viewer and editor. It is still in alpha/beta-state but usable for mindmaps without extra-features.  It reads and displays Mindmaps in the Freemind/Freeplane Format (*.mm). Its possible to edit and save the mindmaps in the same format, so they are still compatible with Freemind or Freeplane. It is written in Python + Kivy and thus runs under Android, iOS, Windows, Linux and MacOS - but the main target ist Android. It is the best mindmapping-application for Freeplane and Freemind files on Android to date (though that doesn't mean much...). [Wikipedia links here](https://de.wikipedia.org/wiki/FreePlane).
@@ -18,7 +22,7 @@ MindBike is a Mindmap viewer and editor. It is still in alpha/beta-state but usa
 
 # Installation
 ## Download ##
-[Download-Section](https://bitbucket.org/tomthe/mindbike-mindmapping/downloads)
+[Download APK](https://github.com/tomthe/mindbike-mindmapping/releases/download/0.4.4/de.tomthe.mindbike.apk)
 Please note that the builds aren't always up-to-date. For now, I only provide packages for Android, sometimes for Windows.
 ## Android
 [How to install apk-files on android] (http://pc.answers.com/tablets/how-to-install-third-party-android-apps)
